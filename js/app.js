@@ -3,6 +3,7 @@ import { renderHud } from './character.js';
 import { renderMap, renderSubject } from './map.js';
 import { renderTaskScreen } from './task.js';
 import { renderProfile } from './profile.js';
+import { renderParent } from './parent.js';
 
 let subjects = [];
 
@@ -11,6 +12,7 @@ const screens = {
   subject: document.getElementById('screen-subject'),
   task: document.getElementById('screen-task'),
   profile: document.getElementById('screen-profile'),
+  parent: document.getElementById('screen-parent'),
 };
 
 function show(name) {
@@ -45,6 +47,11 @@ function route() {
   if (screen === 'profile') {
     renderProfile(screens.profile);
     show('profile');
+    return;
+  }
+  if (screen === 'parent') {
+    renderParent(screens.parent, subjects);
+    show('parent');
     return;
   }
   renderMap(screens.map, subjects, (id) => { location.hash = `#subject/${id}`; });

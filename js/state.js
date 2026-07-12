@@ -13,6 +13,9 @@ const DEFAULT_STATE = {
   dailyStars: 0,
   dailySolved: 0,
   dailyDate: '',
+  // mistakes["subject/topic"] = сколько раз ошибался (для родительской панели)
+  mistakes: {},
+  parentPin: null,
   lastPlayed: null,
 };
 

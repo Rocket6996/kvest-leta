@@ -71,5 +71,6 @@ export async function renderProfile(container) {
           }).join('')}
         </div>
       </div>
-    </div>`;
+    </div>
+    <a href="#parent" class="parent-link">для родителей</a>`;
 }

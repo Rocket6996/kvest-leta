@@ -70,3 +70,15 @@ export function award(subjectId, topicId, task) {
 export function totalResources() {
   return Object.values(getState().resources).reduce((a, b) => a + b, 0);
 }
+
+// Ошибка не штрафуется, но тихо считается — родитель увидит, где трудно
+export function recordMistake(subjectId, topicId) {
+  const s = getState();
+  const key = `${subjectId}/${topicId}`;
+  s.mistakes[key] = (s.mistakes[key] || 0) + 1;
+  save();
+}
+
+export function mistakesInTopic(subjectId, topicId) {
+  return getState().mistakes[`${subjectId}/${topicId}`] || 0;
+}

@@ -1,7 +1,8 @@
 // Экран заданий: очередь «блоков» подтемы, разбивание с мгновенным фидбеком.
 // Тон реплик — напарник по экспедиции, не учитель.
-import { isSolved, checkAnswer, award, SOLVED_PER_STAR } from './engine.js';
+import { isSolved, checkAnswer, award, recordMistake } from './engine.js';
 import { renderHud } from './character.js';
+import { initScratchpad } from './draw.js';
 
 const PRAISE = ['Есть! Блок наш.', 'Отличный удар!', 'Чисто сработано.', 'Так держать, напарник!'];
 const RESOURCE_ICON = { wood: '🪵', stone: '🪨', iron: '⛓️', gold: '⭐' };
@@ -76,6 +77,11 @@ function renderTask(session, task) {
   const blocksEl = container.querySelector('#task-blocks');
   const renderers = { choice: renderChoice, input: renderInput, order: renderOrder, match: renderMatch };
   (renderers[task.type] || renderChoice)(session, task, blocksEl);
+
+  // черновик для решения пером — прежде всего для математики
+  if (session.subject.id === 'math' || task.type === 'input') {
+    initScratchpad(container.querySelector('.task-panel'));
+  }
 }
 
 /* ---------- типы заданий ---------- */
@@ -205,6 +211,7 @@ function onCorrect(session, task) {
 
 function onWrong(session, task) {
   session.attempts += 1;
+  recordMistake(session.subject.id, session.topicId);
   if (session.attempts === 1 && task.hint) {
     feedback(session, 'warn', `Этот блок прочнее, чем кажется. Подсказка: ${task.hint}`);
   } else {

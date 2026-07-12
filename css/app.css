@@ -277,3 +277,64 @@ body {
 }
 .equip-item .count { margin-left: auto; color: var(--text-dim); font-size: var(--fs-small); }
 .equip-item.locked { opacity: 0.55; }
+
+/* ---------- Черновик ---------- */
+.scratch { margin-top: 18px; }
+.scratch summary {
+  cursor: pointer;
+  color: var(--text-dim);
+  font-size: var(--fs-small);
+  min-height: var(--tap-min);
+  display: flex; align-items: center;
+}
+.scratch-canvas {
+  display: block;
+  width: 100%;
+  height: 240px;
+  background: var(--bg-sunken);
+  border-radius: var(--radius);
+  touch-action: none; /* иначе iPad скроллит вместо рисования */
+}
+.scratch-clear {
+  margin-top: 8px;
+  min-height: var(--tap-min);
+  padding: 6px 18px;
+  font-size: var(--fs-small); font-family: var(--font-body);
+  color: var(--text-dim);
+  background: var(--bg-sunken);
+  border: 1px solid var(--text-dim);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+/* ---------- Родительская панель ---------- */
+.parent-link {
+  display: block;
+  text-align: center;
+  margin: 28px auto 8px;
+  color: var(--text-dim);
+  font-size: var(--fs-small);
+  min-height: var(--tap-min);
+}
+.pin-row { max-width: 340px; margin: 0 auto; }
+.parent-table {
+  width: 100%;
+  max-width: 860px;
+  border-collapse: collapse;
+  margin: 16px 0 8px;
+  font-size: var(--fs-small);
+}
+.parent-table th, .parent-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--bg-raised);
+}
+.parent-table th { color: var(--text-dim); font-weight: normal; }
+.parent-table tr.hard td { color: var(--err); }
+.parent-h3 { margin: 24px 0 12px; }
+.disclaimer {
+  margin-top: 32px;
+  color: var(--text-dim);
+  font-size: 13px;
+  max-width: 640px;
+}
