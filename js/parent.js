@@ -13,6 +13,7 @@ export function renderParent(container, subjects) {
 
 function pinForm(title, note) {
   return `
+    <a href="#profile" class="back-link">← Назад</a>
     <div class="finale">
       <h2>${title}</h2>
       <p>${note}</p>
@@ -91,6 +92,7 @@ async function renderPanel(container, subjects) {
     })).join('');
 
   container.innerHTML = `
+    <a href="#profile" class="back-link">← Назад</a>
     <h2>Панель для родителей</h2>
     <p class="stub-note">Всего собрано ресурсов: ${totalResources()} · последняя игра: ${s.lastPlayed ? new Date(s.lastPlayed).toLocaleString('ru-RU') : '—'}</p>
 

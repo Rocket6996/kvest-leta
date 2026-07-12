@@ -101,10 +101,16 @@ body {
   display: inline-flex;
   align-items: center;
   min-height: var(--tap-min);
-  color: var(--text-dim);
+  padding: 6px 18px;
+  color: var(--text);
   text-decoration: none;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  background: var(--bg-raised);
+  border: 1px solid var(--text-dim);
+  border-radius: var(--radius);
+  font-size: var(--fs-small);
 }
+.back-link:active { filter: brightness(1.25); }
 
 /* ---------- Нижняя навигация ---------- */
 #bottom-nav {
@@ -348,3 +354,11 @@ body {
 }
 .parent-milestones { max-width: 640px; }
 .give-btn { min-height: var(--tap-min); min-width: 0; padding: 6px 14px; font-size: var(--fs-small); }
+
+/* разбор после ответа (и верного тоже) */
+.task-explain {
+  margin-top: 10px;
+  color: var(--text-dim);
+  border-left: 3px solid var(--mustard);
+  padding-left: 12px;
+}

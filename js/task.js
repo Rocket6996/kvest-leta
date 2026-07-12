@@ -72,6 +72,7 @@ function renderTask(session, task) {
       <p class="task-prompt">${task.prompt}</p>
       <div class="task-blocks" id="task-blocks"></div>
       <p class="task-feedback" id="task-feedback" aria-live="polite"></p>
+      <p class="task-explain" id="task-explain" hidden></p>
       <button class="task-next" id="task-next" hidden>Дальше →</button>
     </div>`;
 
@@ -206,6 +207,13 @@ async function onCorrect(session, task) {
   const icon = RESOURCE_ICON[task.resource || 'wood'];
   const praise = PRAISE[Math.floor(Math.random() * PRAISE.length)];
   feedback(session, 'ok', `${praise} ${icon} +1 · ✨ +${task.xp || 10} XP${newStar ? ' · ⭐ Звезда дня!' : ''}`);
+
+  // разбор показываем и после верного ответа — закрепляет «почему»
+  if (task.explain) {
+    const ex = session.container.querySelector('#task-explain');
+    ex.textContent = task.explain;
+    ex.hidden = false;
+  }
 
   showNext(session, campTime, await unseenChest());
 }
