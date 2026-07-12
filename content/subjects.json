@@ -1,0 +1,58 @@
+{
+  "subjects": [
+    {
+      "id": "russian",
+      "title": "Русский язык",
+      "place": "Руины Грамматики",
+      "color": "var(--violet)",
+      "topics": [
+        { "id": "roots", "title": "Орфограммы корня", "tasks": 9 },
+        { "id": "nouns", "title": "Существительное: склонения и окончания", "tasks": 9 },
+        { "id": "adjectives", "title": "Прилагательное: род, число, падеж", "tasks": 9 },
+        { "id": "verbs", "title": "Глагол: спряжение, -тся/-ться", "tasks": 9 },
+        { "id": "pronouns", "title": "Местоимение, предлоги и приставки", "tasks": 9 },
+        { "id": "sentence", "title": "Предложение и однородные члены", "tasks": 9 }
+      ]
+    },
+    {
+      "id": "math",
+      "title": "Математика",
+      "place": "Шахты Чисел",
+      "color": "var(--teal)",
+      "topics": [
+        { "id": "numbers", "title": "Многозначные числа и разряды", "tasks": 9 },
+        { "id": "addsub", "title": "Сложение и вычитание в столбик", "tasks": 9 },
+        { "id": "muldiv", "title": "Умножение и деление", "tasks": 9 },
+        { "id": "units", "title": "Величины и перевод единиц", "tasks": 9 },
+        { "id": "motion", "title": "Задачи на движение", "tasks": 9 },
+        { "id": "fractions", "title": "Доли, дроби, площадь, уравнения", "tasks": 9 }
+      ]
+    },
+    {
+      "id": "reading",
+      "title": "Чтение",
+      "place": "Библиотека Летописца",
+      "color": "var(--mustard)",
+      "topics": [
+        { "id": "epics", "title": "Летописи, былины, жития", "tasks": 9 },
+        { "id": "classics", "title": "Чудесный мир классики", "tasks": 9 },
+        { "id": "poetry", "title": "Поэтическая тетрадь", "tasks": 9 },
+        { "id": "talespoems", "title": "Литературные сказки", "tasks": 9 },
+        { "id": "comprehension", "title": "Работа с текстом", "tasks": 9 }
+      ]
+    },
+    {
+      "id": "world",
+      "title": "Окружающий мир",
+      "place": "Обсерватория Мира",
+      "color": "var(--moss)",
+      "topics": [
+        { "id": "earth", "title": "Земля и человечество", "tasks": 9 },
+        { "id": "zones", "title": "Природные зоны России", "tasks": 9 },
+        { "id": "region", "title": "Родной край", "tasks": 9 },
+        { "id": "history", "title": "Страницы истории России", "tasks": 9 },
+        { "id": "modern", "title": "Современная Россия", "tasks": 9 }
+      ]
+    }
+  ]
+}

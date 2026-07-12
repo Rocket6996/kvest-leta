@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#1e2228">
+  <title>Квест лета</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon-180.png">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <header id="hud">
+    <div class="hud-left">
+      <div id="hud-avatar" aria-hidden="true"></div>
+      <div class="hud-level">
+        <span id="hud-level-label">Ур. 1</span>
+        <div class="xp-bar" role="progressbar" aria-label="Опыт">
+          <div id="hud-xp-fill" class="xp-fill"></div>
+        </div>
+      </div>
+    </div>
+    <div class="hud-right">
+      <div id="hud-stars" class="hud-stars" title="Звёзды дня">☆☆☆</div>
+      <div id="hud-resources" class="hud-resources"></div>
+    </div>
+  </header>
+
+  <main id="screens">
+    <section id="screen-map" class="screen" hidden></section>
+    <section id="screen-subject" class="screen" hidden></section>
+    <section id="screen-profile" class="screen" hidden>
+      <h2>Лагерь разведчика</h2>
+      <p class="stub-note">Экран профиля появится на неделе 3.</p>
+    </section>
+  </main>
+
+  <nav id="bottom-nav">
+    <a href="#map" class="nav-btn" data-screen="map">Карта</a>
+    <a href="#profile" class="nav-btn" data-screen="profile">Лагерь</a>
+  </nav>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

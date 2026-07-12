@@ -1,0 +1,126 @@
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* ---------- HUD ---------- */
+#hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: var(--bg-raised);
+  border-bottom: 2px solid var(--bg-sunken);
+}
+
+.hud-left { display: flex; align-items: center; gap: var(--gap); }
+
+#hud-avatar {
+  width: 48px; height: 48px;
+  border-radius: 8px;
+  background: var(--bg-sunken);
+  image-rendering: pixelated;
+}
+
+.hud-level { min-width: 140px; }
+#hud-level-label { font-size: var(--fs-small); color: var(--text-dim); }
+
+.xp-bar {
+  height: 12px;
+  background: var(--bg-sunken);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.xp-fill {
+  height: 100%; width: 0%;
+  background: var(--mustard);
+  border-radius: 6px;
+  transition: width 0.4s ease;
+}
+
+.hud-right { display: flex; align-items: center; gap: 16px; }
+.hud-stars { font-size: 24px; color: var(--mustard); letter-spacing: 4px; }
+.hud-resources { display: flex; gap: 10px; font-size: var(--fs-small); color: var(--text-dim); }
+.hud-resources .res { display: flex; align-items: center; gap: 4px; }
+
+/* ---------- Экраны ---------- */
+#screens { flex: 1; overflow-y: auto; padding: 16px; }
+.screen[hidden] { display: none; }
+.screen h2 { font-size: var(--fs-title); margin-bottom: 12px; }
+.stub-note { color: var(--text-dim); }
+
+/* ---------- Хаб-карта ---------- */
+#map-svg { width: 100%; max-width: 900px; height: auto; display: block; margin: 0 auto; }
+
+.door { cursor: pointer; }
+.door:active .door-body { filter: brightness(1.2); }
+.door-label {
+  fill: var(--text);
+  font-family: var(--font-body);
+  font-size: 22px;
+  text-anchor: middle;
+  pointer-events: none;
+}
+.door-progress {
+  fill: var(--text-dim);
+  font-size: 16px;
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+/* ---------- Мини-карта предмета (заглушка недели 1) ---------- */
+.topic-list { display: flex; flex-direction: column; gap: var(--gap); max-width: 640px; margin: 0 auto; }
+.topic-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: var(--tap-block);
+  padding: 12px 18px;
+  background: var(--bg-raised);
+  border-radius: var(--radius);
+  border-left: 6px solid var(--teal);
+}
+.topic-card .count { color: var(--text-dim); font-size: var(--fs-small); }
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  color: var(--text-dim);
+  text-decoration: none;
+  margin-bottom: 8px;
+}
+
+/* ---------- Нижняя навигация ---------- */
+#bottom-nav {
+  display: flex;
+  justify-content: space-around;
+  background: var(--bg-raised);
+  border-top: 2px solid var(--bg-sunken);
+}
+.nav-btn {
+  flex: 1;
+  min-height: var(--tap-block);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: var(--fs-small);
+}
+.nav-btn.active { color: var(--mustard); }
