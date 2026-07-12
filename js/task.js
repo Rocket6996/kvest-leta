@@ -1,6 +1,7 @@
 // Экран заданий: очередь «блоков» подтемы, разбивание с мгновенным фидбеком.
 // Тон реплик — напарник по экспедиции, не учитель.
-import { isSolved, checkAnswer, award, recordMistake } from './engine.js';
+import { isSolved, checkAnswer, award, recordMistake, totalResources } from './engine.js';
+import { getState, save } from './state.js';
 import { renderHud } from './character.js';
 import { initScratchpad } from './draw.js';
 
@@ -197,7 +198,7 @@ function renderMatch(session, task, el) {
 
 /* ---------- исход попытки ---------- */
 
-function onCorrect(session, task) {
+async function onCorrect(session, task) {
   const { newStar, campTime } = award(session.subject.id, session.topicId, task);
   renderHud();
   session.queue.shift();
@@ -206,8 +207,16 @@ function onCorrect(session, task) {
   const praise = PRAISE[Math.floor(Math.random() * PRAISE.length)];
   feedback(session, 'ok', `${praise} ${icon} +1 · ✨ +${task.xp || 10} XP${newStar ? ' · ⭐ Звезда дня!' : ''}`);
 
-  showNext(session, campTime);
+  showNext(session, campTime, await unseenChest());
 }
+
+// достигнут ли порог сундука, который ребёнок ещё не видел
+async function unseenChest() {
+  const rewards = await (rewardsPromise ??= fetch('content/rewards.json').then((r) => r.json()));
+  const total = totalResources();
+  return rewards.milestones.find((m) => total >= m.resources && !getState().rewardsSeen.includes(m.resources)) || null;
+}
+let rewardsPromise = null;
 
 function onWrong(session, task) {
   session.attempts += 1;
@@ -228,11 +237,12 @@ function feedback(session, kind, text) {
   el.textContent = text;
 }
 
-function showNext(session, campTime) {
+function showNext(session, campTime, chest = null) {
   const btn = session.container.querySelector('#task-next');
   btn.hidden = false;
   btn.addEventListener('click', () => {
-    if (campTime) renderCamp(session);
+    if (chest) renderChest(session, chest, campTime);
+    else if (campTime) renderCamp(session);
     else nextTask(session);
   }, { once: true });
 }
@@ -247,6 +257,23 @@ function renderTopicDone(session) {
       <p>«${session.topic.title}» — все ${session.total} блоков разбиты. Отличная смена, напарник.</p>
       <a href="#subject/${session.subject.id}" class="block hit-btn">К карте ${session.subject.place}</a>
     </div>`;
+}
+
+// Сундук достигнут: праздник + «покажи родителю». Приз выдаёт родитель через панель.
+function renderChest(session, milestone, campTime) {
+  getState().rewardsSeen.push(milestone.resources);
+  save();
+  session.container.innerHTML = `
+    <div class="finale">
+      <div class="finale-icon chest-shake">${milestone.icon}</div>
+      <h2>${milestone.title} открыт!</h2>
+      <p>Ты собрал ${milestone.resources} ресурсов — это настоящее достижение. Внутри: ${milestone.prize.toLowerCase()}. Покажи этот экран родителям!</p>
+      <button class="block hit-btn" id="chest-continue">Ура! Дальше</button>
+    </div>`;
+  session.container.querySelector('#chest-continue').addEventListener('click', () => {
+    if (campTime) renderCamp(session);
+    else nextTask(session);
+  }, { once: true });
 }
 
 // Мягкий стоп: три звезды собраны — разведчик ставит лагерь. Без замков и таймеров.

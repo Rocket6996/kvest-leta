@@ -55,8 +55,27 @@ function renderGate(container, subjects) {
   container.querySelector('#pin-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') tryEnter(); });
 }
 
-function renderPanel(container, subjects) {
+let rewardsPromise = null;
+
+async function renderPanel(container, subjects) {
   const s = getState();
+  const rewards = await (rewardsPromise ??= fetch('content/rewards.json').then((r) => r.json()));
+  const total = totalResources();
+
+  const milestoneRows = rewards.milestones.map((m) => {
+    const reached = total >= m.resources;
+    const given = s.rewardsGiven.includes(m.resources);
+    const status = given ? '✅ выдан'
+      : reached ? `<button class="block give-btn" data-m="${m.resources}">выдать приз</button>`
+      : `впереди (${total} / ${m.resources})`;
+    return `
+      <div class="equip-item ${reached ? '' : 'locked'}">
+        <span class="inv-icon">${m.icon}</span>
+        <span>${m.title} — ${m.resources} ресурсов</span>
+        <span class="count">${status}</span>
+      </div>`;
+  }).join('');
+
   const rows = subjects.flatMap((subject) =>
     subject.topics.map((t) => {
       const solved = solvedInTopic(subject.id, t.id);
@@ -81,6 +100,10 @@ function renderPanel(container, subjects) {
     </table>
     <p class="stub-note">⚠️ — тема, где ошибок заметно больше, чем решённых заданий: стоит разобрать вместе.</p>
 
+    <h3 class="parent-h3">Сундуки и призы</h3>
+    <div class="equip-list parent-milestones">${milestoneRows}</div>
+    <p class="stub-note">Правила: пороги не меняются, приз лучше вручить в течение 1–2 дней после сундука, авансом и деньгами не заменяется.</p>
+
     <h3 class="parent-h3">Резервная копия</h3>
     <div class="input-row">
       <button class="block hit-btn" id="backup-save">Скачать копию прогресса</button>
@@ -90,6 +113,14 @@ function renderPanel(container, subjects) {
     <p class="task-feedback" id="backup-feedback" aria-live="polite"></p>
 
     <p class="disclaimer">Приз-механика использует только оригинальные материалы. NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.</p>`;
+
+  container.querySelectorAll('.give-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      getState().rewardsGiven.push(Number(btn.dataset.m));
+      save();
+      renderPanel(container, subjects);
+    });
+  });
 
   container.querySelector('#backup-save').addEventListener('click', () => {
     const blob = new Blob([exportSave()], { type: 'application/json' });

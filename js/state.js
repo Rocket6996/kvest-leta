@@ -16,6 +16,9 @@ const DEFAULT_STATE = {
   // mistakes["subject/topic"] = сколько раз ошибался (для родительской панели)
   mistakes: {},
   parentPin: null,
+  // пороги сундуков: ребёнок видел анимацию / родитель отметил приз выданным
+  rewardsSeen: [],
+  rewardsGiven: [],
   lastPlayed: null,
 };
 

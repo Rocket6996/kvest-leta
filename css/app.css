@@ -338,3 +338,13 @@ body {
   font-size: 13px;
   max-width: 640px;
 }
+
+/* ---------- Сундук ---------- */
+.chest-shake { animation: chestpop 0.8s ease; }
+@keyframes chestpop {
+  0% { transform: scale(0.3) rotate(-8deg); }
+  60% { transform: scale(1.15) rotate(4deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+.parent-milestones { max-width: 640px; }
+.give-btn { min-height: var(--tap-min); min-width: 0; padding: 6px 14px; font-size: var(--fs-small); }
