@@ -362,3 +362,23 @@ body {
   border-left: 3px solid var(--mustard);
   padding-left: 12px;
 }
+
+/* кнопка подсказки — всегда доступна, помощь просить не стыдно */
+.hint-btn {
+  margin-top: 16px;
+  min-height: var(--tap-min);
+  padding: 6px 18px;
+  font-size: var(--fs-small); font-family: var(--font-body);
+  color: var(--text);
+  background: transparent;
+  border: 1px dashed var(--text-dim);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.hint-btn:disabled { opacity: 0.5; cursor: default; }
+.task-hint {
+  margin-top: 10px;
+  color: var(--text-dim);
+  border-left: 3px solid var(--violet);
+  padding-left: 12px;
+}

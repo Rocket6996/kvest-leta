@@ -34,7 +34,17 @@ export function normalize(value) {
 
 export function checkAnswer(task, value) {
   const accepted = Array.isArray(task.answer) ? task.answer : [task.answer];
-  return accepted.some((a) => normalize(a) === normalize(value));
+  const v = normalize(value);
+  return accepted.some((a) => {
+    const na = normalize(a);
+    if (na === v) return true;
+    // числовой ответ сравниваем по цифрам: «42 000 г» засчитывается как 42000
+    if (/^\d+$/.test(na)) {
+      const digits = v.replace(/\D/g, '');
+      return digits.length > 0 && digits === na;
+    }
+    return false;
+  });
 }
 
 // Дневной счётчик живёт по календарной дате устройства

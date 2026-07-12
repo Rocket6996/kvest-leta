@@ -71,6 +71,8 @@ function renderTask(session, task) {
       ${isBoss ? '<div class="boss-tag">Босс-блок</div>' : ''}
       <p class="task-prompt">${task.prompt}</p>
       <div class="task-blocks" id="task-blocks"></div>
+      <button class="hint-btn" id="hint-btn" type="button">💡 Подсказка</button>
+      <p class="task-hint" id="task-hint" hidden></p>
       <p class="task-feedback" id="task-feedback" aria-live="polite"></p>
       <p class="task-explain" id="task-explain" hidden></p>
       <button class="task-next" id="task-next" hidden>Дальше →</button>
@@ -79,6 +81,8 @@ function renderTask(session, task) {
   const blocksEl = container.querySelector('#task-blocks');
   const renderers = { choice: renderChoice, input: renderInput, order: renderOrder, match: renderMatch };
   (renderers[task.type] || renderChoice)(session, task, blocksEl);
+
+  container.querySelector('#hint-btn').addEventListener('click', () => openHint(session, task));
 
   // черновик для решения пером — прежде всего для математики
   if (session.subject.id === 'math' || task.type === 'input') {
@@ -197,6 +201,20 @@ function renderMatch(session, task, el) {
   });
 }
 
+// Подсказка доступна всегда и бесплатно: способ решения + пример похожей
+// задачи, но не сам ответ. Просить помощь — нормально.
+function openHint(session, task) {
+  const el = session.container.querySelector('#task-hint');
+  const parts = [];
+  if (task.hint) parts.push(task.hint);
+  if (session.topic.example) parts.push(session.topic.example);
+  el.textContent = parts.join(' ');
+  el.hidden = parts.length === 0;
+  const btn = session.container.querySelector('#hint-btn');
+  btn.disabled = true;
+  btn.textContent = '💡';
+}
+
 /* ---------- исход попытки ---------- */
 
 async function onCorrect(session, task) {
@@ -230,7 +248,8 @@ function onWrong(session, task) {
   session.attempts += 1;
   recordMistake(session.subject.id, session.topicId);
   if (session.attempts === 1 && task.hint) {
-    feedback(session, 'warn', `Этот блок прочнее, чем кажется. Подсказка: ${task.hint}`);
+    feedback(session, 'warn', 'Этот блок прочнее, чем кажется — глянь подсказку и попробуй ещё раз.');
+    openHint(session, task);
   } else {
     // вторая ошибка: показываем устройство блока и идём дальше, блок вернётся позже
     feedback(session, 'warn', `Смотри, как он устроен: ${task.explain} Вернёмся к нему позже.`);
