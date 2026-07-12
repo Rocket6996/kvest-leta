@@ -66,13 +66,19 @@ async function renderPanel(container, subjects) {
   const milestoneRows = rewards.milestones.map((m) => {
     const reached = total >= m.resources;
     const given = s.rewardsGiven.includes(m.resources);
-    const status = given ? '✅ выдан'
-      : reached ? `<button class="block give-btn" data-m="${m.resources}">выдать приз</button>`
-      : `впереди (${total} / ${m.resources})`;
+    let status;
+    if (!m.real) {
+      // виртуальные предметы комнаты выдаются автоматически
+      status = reached ? '🏠 в комнате' : `впереди (${total} / ${m.resources})`;
+    } else {
+      status = given ? '✅ выдан'
+        : reached ? `<button class="block give-btn" data-m="${m.resources}">выдать приз</button>`
+        : `впереди (${total} / ${m.resources})`;
+    }
     return `
       <div class="equip-item ${reached ? '' : 'locked'}">
         <span class="inv-icon">${m.icon}</span>
-        <span>${m.title} — ${m.resources} ресурсов</span>
+        <span>${m.title} — ${m.resources} ресурсов${m.real ? ' · реальный приз' : ''}</span>
         <span class="count">${status}</span>
       </div>`;
   }).join('');
@@ -104,7 +110,7 @@ async function renderPanel(container, subjects) {
 
     <h3 class="parent-h3">Сундуки и призы</h3>
     <div class="equip-list parent-milestones">${milestoneRows}</div>
-    <p class="stub-note">Правила: пороги не меняются, приз лучше вручить в течение 1–2 дней после сундука, авансом и деньгами не заменяется.</p>
+    <p class="stub-note">Предметы для комнаты появляются сами. Реальный приз один — финальный: вручить лучше в течение 1–2 дней после сундука, авансом и деньгами не заменяется.</p>
 
     <h3 class="parent-h3">Резервная копия</h3>
     <div class="input-row">

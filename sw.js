@@ -1,7 +1,7 @@
 // Офлайн-режим: при установке кэшируем всё приложение,
 // дальше — сеть в приоритете, кэш как запасной вариант.
 // При изменении файлов увеличить VERSION, чтобы кэш обновился.
-const VERSION = 'quest-v3';
+const VERSION = 'quest-v4';
 
 const ASSETS = [
   './',
@@ -18,6 +18,7 @@ const ASSETS = [
   'js/draw.js',
   'js/profile.js',
   'js/parent.js',
+  'js/room.js',
   'content/subjects.json',
   'content/math.json',
   'content/russian.json',

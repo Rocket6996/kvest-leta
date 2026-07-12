@@ -25,12 +25,15 @@ export async function renderProfile(container) {
   const total = totalResources();
   const nextChest = rewards.milestones.find((m) => total < m.resources);
 
+  const chestNote = nextChest?.real
+    ? 'главный сюрприз лета'
+    : `новый предмет для комнаты: ${nextChest?.title.toLowerCase()}`;
   const chestBlock = nextChest
     ? `
       <div class="camp-chest">
-        <div class="camp-chest-head">${nextChest.icon} ${nextChest.title}: ${total} / ${nextChest.resources}</div>
+        <div class="camp-chest-head">${nextChest.icon} До сундука: ${total} / ${nextChest.resources}</div>
         <div class="xp-bar big"><div class="xp-fill" style="width:${Math.round((total / nextChest.resources) * 100)}%"></div></div>
-        <p class="stub-note">Осталось собрать: ${nextChest.resources - total}. Внутри — ${nextChest.prize.toLowerCase()}.</p>
+        <p class="stub-note">Осталось собрать: ${nextChest.resources - total}. Внутри — ${chestNote}.</p>
       </div>`
     : `<div class="camp-chest"><div class="camp-chest-head">🏆 Все сундуки открыты — легенда экспедиции!</div></div>`;
 

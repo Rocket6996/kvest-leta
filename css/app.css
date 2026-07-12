@@ -260,16 +260,21 @@ body {
 .camp-level { font-size: var(--fs-title); margin-bottom: 8px; }
 .xp-bar.big { height: 16px; border-radius: 8px; margin-bottom: 8px; }
 
-.inv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
+.inv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--gap); }
 .inv-cell {
   background: var(--bg-sunken);
   border-radius: var(--radius);
   padding: 12px;
   display: flex; align-items: center; gap: 8px;
+  min-width: 0; /* текст не вылезает за ячейку */
 }
-.inv-icon { font-size: 26px; }
-.inv-count { font-size: 24px; min-width: 36px; text-align: right; }
-.inv-name { color: var(--text-dim); font-size: var(--fs-small); }
+.inv-icon { font-size: 26px; flex-shrink: 0; }
+.inv-count { font-size: 24px; flex-shrink: 0; }
+.inv-name {
+  color: var(--text-dim); font-size: var(--fs-small);
+  flex: 1; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 
 .camp-chest { margin-top: 18px; }
 .camp-chest-head { margin-bottom: 8px; }
@@ -382,3 +387,13 @@ body {
   border-left: 3px solid var(--violet);
   padding-left: 12px;
 }
+
+/* ---------- Комната разведчика ---------- */
+#room-svg {
+  display: block;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto 20px;
+  border-radius: var(--radius);
+}
+.room-items { max-width: 640px; margin: 0 auto; }

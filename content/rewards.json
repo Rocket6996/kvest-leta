@@ -1,9 +1,15 @@
 {
   "milestones": [
-    { "resources": 20, "icon": "🧰", "title": "Малый сундук", "prize": "Настоящий приз-сюрприз" },
-    { "resources": 50, "icon": "📦", "title": "Средний сундук", "prize": "Настоящий приз-сюрприз" },
-    { "resources": 100, "icon": "🗝️", "title": "Большой сундук", "prize": "Настоящий приз-сюрприз" },
-    { "resources": 150, "icon": "🏆", "title": "Сундук легенды", "prize": "Главный сюрприз лета" }
+    { "resources": 10, "icon": "🛏️", "title": "Спальник разведчика", "item": "bed" },
+    { "resources": 25, "icon": "🧰", "title": "Сундук для находок", "item": "chest" },
+    { "resources": 40, "icon": "🛠️", "title": "Верстак", "item": "bench" },
+    { "resources": 60, "icon": "🏮", "title": "Фонарь шахты", "item": "lantern" },
+    { "resources": 80, "icon": "🐈", "title": "Кот-компаньон", "item": "cat" },
+    { "resources": 100, "icon": "📚", "title": "Книжная полка", "item": "shelf" },
+    { "resources": 120, "icon": "🧶", "title": "Ковёр с узором", "item": "rug" },
+    { "resources": 140, "icon": "🔭", "title": "Телескоп", "item": "telescope" },
+    { "resources": 160, "icon": "🚩", "title": "Знамя экспедиции", "item": "banner" },
+    { "resources": 185, "icon": "🏆", "title": "Сундук легенды", "item": "trophy", "real": true, "prize": "Главный сюрприз лета" }
   ],
   "equipment": [
     { "level": 2, "icon": "⛏️", "title": "Кирка разведчика" },

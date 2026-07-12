@@ -4,6 +4,7 @@ import { renderMap, renderSubject } from './map.js';
 import { renderTaskScreen } from './task.js';
 import { renderProfile } from './profile.js';
 import { renderParent } from './parent.js';
+import { renderRoom } from './room.js';
 
 let subjects = [];
 
@@ -12,6 +13,7 @@ const screens = {
   subject: document.getElementById('screen-subject'),
   task: document.getElementById('screen-task'),
   profile: document.getElementById('screen-profile'),
+  room: document.getElementById('screen-room'),
   parent: document.getElementById('screen-parent'),
 };
 
@@ -47,6 +49,11 @@ function route() {
   if (screen === 'profile') {
     renderProfile(screens.profile);
     show('profile');
+    return;
+  }
+  if (screen === 'room') {
+    renderRoom(screens.room);
+    show('room');
     return;
   }
   if (screen === 'parent') {

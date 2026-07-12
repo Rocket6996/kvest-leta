@@ -286,16 +286,21 @@ function renderTopicDone(session) {
     </div>`;
 }
 
-// Сундук достигнут: праздник + «покажи родителю». Приз выдаёт родитель через панель.
+// Сундук достигнут. Обычный сундук дарит предмет для комнаты сразу;
+// финальный «Сундук легенды» — реальный сюрприз, его выдаёт родитель.
 function renderChest(session, milestone, campTime) {
   getState().rewardsSeen.push(milestone.resources);
   save();
+  const note = milestone.real
+    ? `Ты собрал ${milestone.resources} ресурсов — вся карта покорилась! Внутри: ${milestone.prize.toLowerCase()}. Позови родителей!`
+    : `Ты собрал ${milestone.resources} ресурсов. Новый предмет — «${milestone.title}» — уже появился в твоей комнате!`;
   session.container.innerHTML = `
     <div class="finale">
       <div class="finale-icon chest-shake">${milestone.icon}</div>
-      <h2>${milestone.title} открыт!</h2>
-      <p>Ты собрал ${milestone.resources} ресурсов — это настоящее достижение. Внутри: ${milestone.prize.toLowerCase()}. Покажи этот экран родителям!</p>
-      <button class="block hit-btn" id="chest-continue">Ура! Дальше</button>
+      <h2>${milestone.real ? 'Сундук легенды открыт!' : `${milestone.title} — твой!`}</h2>
+      <p>${note}</p>
+      <a href="#room" class="block hit-btn">Посмотреть комнату</a>
+      <button class="task-next" id="chest-continue">Дальше →</button>
     </div>`;
   session.container.querySelector('#chest-continue').addEventListener('click', () => {
     if (campTime) renderCamp(session);
