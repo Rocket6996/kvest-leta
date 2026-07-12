@@ -5,6 +5,7 @@
       "title": "Русский язык",
       "place": "Руины Грамматики",
       "color": "var(--violet)",
+      "ready": true,
       "topics": [
         { "id": "roots", "title": "Орфограммы корня", "tasks": 9 },
         { "id": "nouns", "title": "Существительное: склонения и окончания", "tasks": 9 },

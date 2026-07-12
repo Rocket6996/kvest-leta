@@ -2,6 +2,7 @@
 import { renderHud } from './character.js';
 import { renderMap, renderSubject } from './map.js';
 import { renderTaskScreen } from './task.js';
+import { renderProfile } from './profile.js';
 
 let subjects = [];
 
@@ -42,6 +43,7 @@ function route() {
     }
   }
   if (screen === 'profile') {
+    renderProfile(screens.profile);
     show('profile');
     return;
   }
