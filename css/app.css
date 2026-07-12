@@ -421,3 +421,16 @@ body {
   margin-top: 22px;
 }
 .book-pageno { color: var(--text-dim); font-size: var(--fs-small); }
+
+/* мастерская в комнате */
+.room-note { max-width: 640px; margin: 0 auto 14px; }
+.craft-cost { display: block; color: var(--text-dim); font-size: var(--fs-small); }
+.craft-btn {
+  margin-left: auto;
+  min-height: var(--tap-min); min-width: 0;
+  padding: 6px 14px;
+  font-size: var(--fs-small);
+  border-color: var(--mustard);
+  flex-shrink: 0;
+}
+.craft-btn:disabled { opacity: 0.45; border-color: var(--text-dim); cursor: default; }

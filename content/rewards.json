@@ -1,14 +1,16 @@
 {
+  "items": [
+    { "id": "bed", "icon": "🛏️", "title": "Спальник разведчика", "cost": { "wood": 6 } },
+    { "id": "chest", "icon": "🧰", "title": "Сундук для находок", "cost": { "wood": 8, "stone": 4 } },
+    { "id": "bench", "icon": "🛠️", "title": "Верстак", "cost": { "wood": 10, "stone": 6 } },
+    { "id": "lantern", "icon": "🏮", "title": "Фонарь шахты", "cost": { "stone": 6, "iron": 4 } },
+    { "id": "cat", "icon": "🐈", "title": "Кот-компаньон", "cost": { "stone": 10, "gold": 2 } },
+    { "id": "shelf", "icon": "📚", "title": "Книжная полка", "cost": { "wood": 10, "stone": 6, "iron": 2 } },
+    { "id": "rug", "icon": "🧶", "title": "Ковёр с узором", "cost": { "stone": 8, "iron": 6 } },
+    { "id": "telescope", "icon": "🔭", "title": "Телескоп", "cost": { "iron": 10, "gold": 4 } },
+    { "id": "banner", "icon": "🚩", "title": "Знамя экспедиции", "cost": { "wood": 6, "stone": 6, "iron": 6, "gold": 2 } }
+  ],
   "milestones": [
-    { "resources": 10, "icon": "🛏️", "title": "Спальник разведчика", "item": "bed" },
-    { "resources": 25, "icon": "🧰", "title": "Сундук для находок", "item": "chest" },
-    { "resources": 40, "icon": "🛠️", "title": "Верстак", "item": "bench" },
-    { "resources": 60, "icon": "🏮", "title": "Фонарь шахты", "item": "lantern" },
-    { "resources": 80, "icon": "🐈", "title": "Кот-компаньон", "item": "cat" },
-    { "resources": 100, "icon": "📚", "title": "Книжная полка", "item": "shelf" },
-    { "resources": 120, "icon": "🧶", "title": "Ковёр с узором", "item": "rug" },
-    { "resources": 140, "icon": "🔭", "title": "Телескоп", "item": "telescope" },
-    { "resources": 160, "icon": "🚩", "title": "Знамя экспедиции", "item": "banner" },
     { "resources": 185, "icon": "🏆", "title": "Сундук легенды", "item": "trophy", "real": true, "prize": "Главный сюрприз лета" }
   ],
   "equipment": [

@@ -1,6 +1,6 @@
 // «Лагерь разведчика»: персонаж, опыт, инвентарь, снаряжение и путь к сундуку.
 import { getState, xpForLevel } from './state.js';
-import { totalResources } from './engine.js';
+import { totalEarned } from './engine.js';
 import { scoutSvg } from './character.js';
 
 const RESOURCE_META = [
@@ -22,7 +22,7 @@ async function loadRewards() {
 export async function renderProfile(container) {
   const s = getState();
   const rewards = await loadRewards();
-  const total = totalResources();
+  const total = totalEarned();
   const nextChest = rewards.milestones.find((m) => total < m.resources);
 
   const chestNote = nextChest?.real

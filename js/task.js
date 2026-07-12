@@ -1,6 +1,6 @@
 // Экран заданий: очередь «блоков» подтемы, разбивание с мгновенным фидбеком.
 // Тон реплик — напарник по экспедиции, не учитель.
-import { isSolved, checkAnswer, award, recordMistake, totalResources } from './engine.js';
+import { isSolved, checkAnswer, award, recordMistake, totalEarned } from './engine.js';
 import { getState, save } from './state.js';
 import { renderHud } from './character.js';
 import { initScratchpad } from './draw.js';
@@ -237,10 +237,11 @@ async function onCorrect(session, task) {
 }
 
 // достигнут ли порог сундука, который ребёнок ещё не видел
+// (порог считается по всему добытому — траты в комнате его не отдаляют)
 async function unseenChest() {
   const rewards = await (rewardsPromise ??= fetch('content/rewards.json').then((r) => r.json()));
-  const total = totalResources();
-  return rewards.milestones.find((m) => total >= m.resources && !getState().rewardsSeen.includes(m.resources)) || null;
+  const earned = totalEarned();
+  return rewards.milestones.find((m) => earned >= m.resources && !getState().rewardsSeen.includes(m.resources)) || null;
 }
 let rewardsPromise = null;
 

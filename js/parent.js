@@ -1,6 +1,6 @@
 // Родительская панель: PIN, статистика по темам, резервная копия прогресса.
 import { getState, save, exportSave, importSave } from './state.js';
-import { solvedInTopic, mistakesInTopic, totalResources } from './engine.js';
+import { solvedInTopic, mistakesInTopic, totalResources, totalEarned } from './engine.js';
 
 let unlocked = false; // до конца сессии повторно PIN не спрашиваем
 
@@ -61,7 +61,7 @@ let rewardsPromise = null;
 async function renderPanel(container, subjects) {
   const s = getState();
   const rewards = await (rewardsPromise ??= fetch('content/rewards.json').then((r) => r.json()));
-  const total = totalResources();
+  const total = totalEarned();
 
   const milestoneRows = rewards.milestones.map((m) => {
     const reached = total >= m.resources;
@@ -100,7 +100,7 @@ async function renderPanel(container, subjects) {
   container.innerHTML = `
     <a href="#profile" class="back-link">← Назад</a>
     <h2>Панель для родителей</h2>
-    <p class="stub-note">Всего собрано ресурсов: ${totalResources()} · последняя игра: ${s.lastPlayed ? new Date(s.lastPlayed).toLocaleString('ru-RU') : '—'}</p>
+    <p class="stub-note">Добыто за лето: ${total} · сейчас в рюкзаке: ${totalResources()} · предметов в комнате: ${s.roomItems.length} / ${rewards.items.length} · последняя игра: ${s.lastPlayed ? new Date(s.lastPlayed).toLocaleString('ru-RU') : '—'}</p>
 
     <table class="parent-table">
       <thead><tr><th>Предмет</th><th>Тема</th><th>Решено</th><th>Ошибки</th></tr></thead>
@@ -110,7 +110,7 @@ async function renderPanel(container, subjects) {
 
     <h3 class="parent-h3">Сундуки и призы</h3>
     <div class="equip-list parent-milestones">${milestoneRows}</div>
-    <p class="stub-note">Предметы для комнаты появляются сами. Реальный приз один — финальный: вручить лучше в течение 1–2 дней после сундука, авансом и деньгами не заменяется.</p>
+    <p class="stub-note">Предметы для комнаты ребёнок мастерит сам за собранные ресурсы. Реальный приз один — финальный, считается по всему добытому (траты его не отдаляют): вручить лучше в течение 1–2 дней после сундука, авансом и деньгами не заменяется.</p>
 
     <h3 class="parent-h3">Резервная копия</h3>
     <div class="input-row">

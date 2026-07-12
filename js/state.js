@@ -6,7 +6,10 @@ const DEFAULT_STATE = {
   schemaVersion: 1,
   xp: 0,
   level: 1,
+  // resources — кошелёк (тратится на предметы), totalEarned — всё добытое за лето
   resources: { wood: 0, stone: 0, iron: 0, gold: 0 },
+  totalEarned: 0,
+  roomItems: [],
   equipment: [],
   // progress[subjectId][topicId] = массив id решённых заданий
   progress: {},
@@ -30,7 +33,12 @@ function load() {
     if (!raw) return structuredClone(DEFAULT_STATE);
     const saved = JSON.parse(raw);
     // новые поля из DEFAULT_STATE подхватываются при обновлении схемы
-    return { ...structuredClone(DEFAULT_STATE), ...saved };
+    const merged = { ...structuredClone(DEFAULT_STATE), ...saved };
+    // миграция старых сохранений: раньше добытое равнялось кошельку
+    if (!('totalEarned' in saved)) {
+      merged.totalEarned = Object.values(merged.resources).reduce((a, b) => a + b, 0);
+    }
+    return merged;
   } catch {
     return structuredClone(DEFAULT_STATE);
   }
@@ -60,7 +68,10 @@ export function addXp(amount) {
 }
 
 export function addResource(type, amount = 1) {
-  if (type in state.resources) state.resources[type] += amount;
+  if (type in state.resources) {
+    state.resources[type] += amount;
+    state.totalEarned += amount;
+  }
   save();
 }
 

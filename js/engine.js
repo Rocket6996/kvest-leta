@@ -77,8 +77,29 @@ export function award(subjectId, topicId, task) {
   return { newStar, campTime: newStar && starsEarned === STARS_PER_DAY };
 }
 
+// кошелёк (тратится в комнате)
 export function totalResources() {
   return Object.values(getState().resources).reduce((a, b) => a + b, 0);
+}
+
+// всё добытое за лето — по нему считается финальный приз, траты его не уменьшают
+export function totalEarned() {
+  return getState().totalEarned;
+}
+
+export function canAfford(cost) {
+  const r = getState().resources;
+  return Object.entries(cost).every(([type, amount]) => (r[type] || 0) >= amount);
+}
+
+// смастерить предмет: списать ресурсы и поставить в комнату
+export function craft(itemId, cost) {
+  const s = getState();
+  if (!canAfford(cost) || s.roomItems.includes(itemId)) return false;
+  for (const [type, amount] of Object.entries(cost)) s.resources[type] -= amount;
+  s.roomItems.push(itemId);
+  save();
+  return true;
 }
 
 // Ошибка не штрафуется, но тихо считается — родитель увидит, где трудно

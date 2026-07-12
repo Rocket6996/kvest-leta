@@ -1,7 +1,15 @@
-// Комната разведчика: обстановка прирастает предметами из сундуков.
-// Всё нарисовано кодом (SVG), в одном пиксельном стиле с персонажем.
-import { totalResources } from './engine.js';
-import { scoutSvg } from './character.js';
+// Комната разведчика: предметы мастерятся за собранные ресурсы — сам выбираешь,
+// что построить первым. Цены фиксированы и видны заранее; траты не влияют на
+// финальный приз (он считается по всему добытому). SVG в стиле персонажа.
+import { totalEarned, canAfford, craft } from './engine.js';
+import { getState } from './state.js';
+import { renderHud, scoutSvg } from './character.js';
+
+const RESOURCE_ICON = { wood: '🪵', stone: '🪨', iron: '⛓️', gold: '⭐' };
+
+function costLabel(cost) {
+  return Object.entries(cost).map(([t, n]) => `${n} ${RESOURCE_ICON[t]}`).join(' + ');
+}
 
 let rewardsCache = null;
 async function loadRewards() {
@@ -62,23 +70,41 @@ const ITEM_ART = {
 
 export async function renderRoom(container) {
   const rewards = await loadRewards();
-  const total = totalResources();
-  const unlocked = rewards.milestones.filter((m) => total >= m.resources).map((m) => m.item);
+  const s = getState();
+  const crafted = new Set(s.roomItems);
+  // трофей не покупается — он появляется вместе с финальным сундуком
+  const finale = rewards.milestones.find((m) => m.real);
+  if (finale && totalEarned() >= finale.resources) crafted.add(finale.item);
 
   const art = Object.keys(ITEM_ART)
-    .filter((id) => unlocked.includes(id))
+    .filter((id) => crafted.has(id))
     .map((id) => ITEM_ART[id])
     .join('');
 
-  const list = rewards.milestones.map((m) => {
-    const open = total >= m.resources;
+  const list = rewards.items.map((item) => {
+    if (crafted.has(item.id)) {
+      return `
+        <div class="equip-item">
+          <span class="inv-icon">${item.icon}</span>
+          <span>${item.title}</span>
+          <span class="count">в комнате</span>
+        </div>`;
+    }
+    const affordable = canAfford(item.cost);
     return `
-      <div class="equip-item ${open ? '' : 'locked'}">
-        <span class="inv-icon">${open ? m.icon : '🔒'}</span>
-        <span>${open || !m.real ? m.title : 'Сундук легенды'}</span>
-        <span class="count">${open ? 'в комнате' : `${total} / ${m.resources}`}</span>
+      <div class="equip-item ${affordable ? '' : 'locked'}">
+        <span class="inv-icon">${item.icon}</span>
+        <span>${item.title}<span class="craft-cost">${costLabel(item.cost)}</span></span>
+        <button class="block craft-btn" data-item="${item.id}" ${affordable ? '' : 'disabled'}>
+          ${affordable ? '⚒ Смастерить' : 'не хватает'}
+        </button>
       </div>`;
-  }).join('');
+  }).join('') + `
+    <div class="equip-item ${crafted.has(finale.item) ? '' : 'locked'}">
+      <span class="inv-icon">${crafted.has(finale.item) ? finale.icon : '🔒'}</span>
+      <span>Золотой трофей<span class="craft-cost">награда Сундука легенды</span></span>
+      <span class="count">${crafted.has(finale.item) ? 'в комнате' : `${totalEarned()} / ${finale.resources}`}</span>
+    </div>`;
 
   container.innerHTML = `
     <h2>Комната разведчика</h2>
@@ -96,5 +122,16 @@ export async function renderRoom(container) {
       <!-- разведчик всегда дома -->
       <foreignObject x="560" y="300" width="96" height="96">${scoutSvg(96)}</foreignObject>
     </svg>
+    <p class="stub-note room-note">Собирай ресурсы в шахтах и мастери обстановку — что построить первым, решаешь ты.</p>
     <div class="equip-list room-items">${list}</div>`;
+
+  container.querySelectorAll('.craft-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const item = rewards.items.find((i) => i.id === btn.dataset.item);
+      if (item && craft(item.id, item.cost)) {
+        renderHud();
+        renderRoom(container); // предмет сразу появляется в комнате
+      }
+    });
+  });
 }
