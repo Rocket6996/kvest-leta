@@ -5,6 +5,7 @@ import { renderTaskScreen } from './task.js';
 import { renderProfile } from './profile.js';
 import { renderParent } from './parent.js';
 import { renderRoom } from './room.js';
+import { renderBook, booksSubject } from './book.js';
 
 let subjects = [];
 
@@ -24,14 +25,24 @@ function show(name) {
   });
 }
 
-function route() {
+async function findSubject(id) {
+  if (id === 'books') return booksSubject();
+  return subjects.find((s) => s.id === id);
+}
+
+async function route() {
   const hash = location.hash.slice(1) || 'map';
   const [screen, param, param2] = hash.split('/');
 
   renderHud();
 
+  if (screen === 'book' && param) {
+    renderBook(screens.task, param);
+    show('task');
+    return;
+  }
   if (screen === 'task' && param && param2) {
-    const subject = subjects.find((s) => s.id === param);
+    const subject = await findSubject(param);
     if (subject) {
       renderTaskScreen(screens.task, subject, param2);
       show('task');
@@ -39,7 +50,7 @@ function route() {
     }
   }
   if (screen === 'subject' && param) {
-    const subject = subjects.find((s) => s.id === param);
+    const subject = await findSubject(param);
     if (subject) {
       renderSubject(screens.subject, subject);
       show('subject');

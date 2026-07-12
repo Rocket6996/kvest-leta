@@ -1,7 +1,7 @@
 // Офлайн-режим: при установке кэшируем всё приложение,
 // дальше — сеть в приоритете, кэш как запасной вариант.
 // При изменении файлов увеличить VERSION, чтобы кэш обновился.
-const VERSION = 'quest-v4';
+const VERSION = 'quest-v5';
 
 const ASSETS = [
   './',
@@ -19,12 +19,14 @@ const ASSETS = [
   'js/profile.js',
   'js/parent.js',
   'js/room.js',
+  'js/book.js',
   'content/subjects.json',
   'content/math.json',
   'content/russian.json',
   'content/reading.json',
   'content/world.json',
   'content/rewards.json',
+  'content/books.json',
   'assets/icons/icon-192.png',
   'assets/icons/icon-512.png',
   'assets/icons/apple-touch-icon-180.png',

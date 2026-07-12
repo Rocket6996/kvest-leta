@@ -397,3 +397,27 @@ body {
   border-radius: var(--radius);
 }
 .room-items { max-width: 640px; margin: 0 auto; }
+
+/* ---------- Книжная полка ---------- */
+.book-page {
+  max-width: 640px;
+  margin: 0 auto;
+  background: var(--bg-raised);
+  border-radius: var(--radius);
+  padding: 28px;
+}
+.book-author { color: var(--text-dim); font-size: var(--fs-small); margin-bottom: 18px; }
+.book-para {
+  margin-bottom: 14px;
+  line-height: 1.7;
+  text-indent: 1.2em;
+  -webkit-user-select: text; user-select: text;
+}
+.book-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  margin-top: 22px;
+}
+.book-pageno { color: var(--text-dim); font-size: var(--fs-small); }

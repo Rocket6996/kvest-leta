@@ -66,15 +66,25 @@ export function renderSubject(container, subject) {
           <span class="count">скоро</span>
         </div>`;
     }
+    // книги открываются в читалку, обычные темы — сразу в задания
+    const href = subject.books ? `#book/${t.id}` : `#task/${subject.id}/${t.id}`;
     return `
-      <a class="topic-card" href="#task/${subject.id}/${t.id}" style="border-left-color: ${subject.color}">
-        <span>${t.title}</span>
+      <a class="topic-card" href="${href}" style="border-left-color: ${subject.color}">
+        <span>${subject.books ? '📖 ' : ''}${t.title}</span>
         <span class="count">${solved} / ${t.tasks}</span>
       </a>`;
   }).join('');
 
+  // из библиотеки чтения — проход к настоящим книгам
+  const shelfLink = subject.id === 'reading'
+    ? `<a class="topic-card" href="#subject/books" style="border-left-color: var(--mustard)">
+         <span>📖 Книжная полка: настоящие рассказы</span>
+         <span class="count">→</span>
+       </a>`
+    : '';
+
   container.innerHTML = `
     <a href="#map" class="back-link">← На карту</a>
     <h2>${subject.place}</h2>
-    <div class="topic-list">${rows}</div>`;
+    <div class="topic-list">${rows}${shelfLink}</div>`;
 }
