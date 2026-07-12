@@ -1,5 +1,6 @@
 // Хаб-карта: четыре «двери» предметов вокруг лагеря разведчика.
 import { solvedCount } from './state.js';
+import { solvedInTopic } from './engine.js';
 import { scoutSvg } from './character.js';
 
 // позиции дверей на карте 900×520
@@ -56,11 +57,21 @@ export function renderMap(container, subjects, onOpenSubject) {
 
 // Мини-карта предмета: пока список подтем; станет картой на неделе 3.
 export function renderSubject(container, subject) {
-  const rows = subject.topics.map((t) => `
-    <div class="topic-card" style="border-left-color: ${subject.color}">
-      <span>${t.title}</span>
-      <span class="count">0 / ${t.tasks}</span>
-    </div>`).join('');
+  const rows = subject.topics.map((t) => {
+    const solved = solvedInTopic(subject.id, t.id);
+    if (!subject.ready) {
+      return `
+        <div class="topic-card locked" style="border-left-color: ${subject.color}">
+          <span>${t.title}</span>
+          <span class="count">скоро</span>
+        </div>`;
+    }
+    return `
+      <a class="topic-card" href="#task/${subject.id}/${t.id}" style="border-left-color: ${subject.color}">
+        <span>${t.title}</span>
+        <span class="count">${solved} / ${t.tasks}</span>
+      </a>`;
+  }).join('');
 
   container.innerHTML = `
     <a href="#map" class="back-link">← На карту</a>

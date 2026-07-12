@@ -19,6 +19,7 @@
       "title": "Математика",
       "place": "Шахты Чисел",
       "color": "var(--teal)",
+      "ready": true,
       "topics": [
         { "id": "numbers", "title": "Многозначные числа и разряды", "tasks": 9 },
         { "id": "addsub", "title": "Сложение и вычитание в столбик", "tasks": 9 },

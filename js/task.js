@@ -1,0 +1,255 @@
+// Экран заданий: очередь «блоков» подтемы, разбивание с мгновенным фидбеком.
+// Тон реплик — напарник по экспедиции, не учитель.
+import { isSolved, checkAnswer, award, SOLVED_PER_STAR } from './engine.js';
+import { renderHud } from './character.js';
+
+const PRAISE = ['Есть! Блок наш.', 'Отличный удар!', 'Чисто сработано.', 'Так держать, напарник!'];
+const RESOURCE_ICON = { wood: '🪵', stone: '🪨', iron: '⛓️', gold: '⭐' };
+
+const contentCache = {};
+
+async function loadTasks(subjectId) {
+  if (!contentCache[subjectId]) {
+    const res = await fetch(`content/${subjectId}.json`);
+    if (!res.ok) return null;
+    contentCache[subjectId] = await res.json();
+  }
+  return contentCache[subjectId];
+}
+
+export async function renderTaskScreen(container, subject, topicId) {
+  const content = await loadTasks(subject.id);
+  const topic = content?.topics.find((t) => t.id === topicId);
+  const topicMeta = subject.topics.find((t) => t.id === topicId);
+
+  if (!topic) {
+    container.innerHTML = `
+      <a href="#subject/${subject.id}" class="back-link">← Назад</a>
+      <h2>${topicMeta?.title || ''}</h2>
+      <p class="stub-note">Эти блоки ещё под завалом — скоро раскопаем!</p>`;
+    return;
+  }
+
+  // нерешённые задания; босс-блок всегда в конце очереди
+  const queue = topic.tasks.filter((t) => !isSolved(subject.id, topicId, t.id));
+  const session = {
+    container, subject, topicId, topic,
+    queue, total: topic.tasks.length,
+    attempts: 0, // ошибок на текущем задании
+  };
+  nextTask(session);
+}
+
+function nextTask(session) {
+  if (session.queue.length === 0) {
+    renderTopicDone(session);
+    return;
+  }
+  session.attempts = 0;
+  renderTask(session, session.queue[0]);
+}
+
+function progressLine(session) {
+  const done = session.total - session.queue.length;
+  return `
+    <div class="mine-progress" aria-label="Разбито ${done} из ${session.total}">
+      ${Array.from({ length: session.total }, (_, i) =>
+        `<span class="mine-cell ${i < done ? 'done' : ''}"></span>`).join('')}
+    </div>`;
+}
+
+function renderTask(session, task) {
+  const { container, subject } = session;
+  const isBoss = task.boss === true;
+
+  container.innerHTML = `
+    <a href="#subject/${subject.id}" class="back-link">← ${subject.place}</a>
+    ${progressLine(session)}
+    <div class="task-panel ${isBoss ? 'boss' : ''}">
+      ${isBoss ? '<div class="boss-tag">Босс-блок</div>' : ''}
+      <p class="task-prompt">${task.prompt}</p>
+      <div class="task-blocks" id="task-blocks"></div>
+      <p class="task-feedback" id="task-feedback" aria-live="polite"></p>
+      <button class="task-next" id="task-next" hidden>Дальше →</button>
+    </div>`;
+
+  const blocksEl = container.querySelector('#task-blocks');
+  const renderers = { choice: renderChoice, input: renderInput, order: renderOrder, match: renderMatch };
+  (renderers[task.type] || renderChoice)(session, task, blocksEl);
+}
+
+/* ---------- типы заданий ---------- */
+
+function renderChoice(session, task, el) {
+  el.innerHTML = task.blocks
+    .map((b, i) => `<button class="block" data-i="${i}">${b}</button>`)
+    .join('');
+  el.querySelectorAll('.block').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const value = task.blocks[Number(btn.dataset.i)];
+      if (checkAnswer(task, value)) {
+        btn.classList.add('broken');
+        onCorrect(session, task);
+      } else {
+        btn.classList.add('cracked');
+        btn.disabled = true;
+        onWrong(session, task);
+      }
+    });
+  });
+}
+
+function renderInput(session, task, el) {
+  el.innerHTML = `
+    <div class="input-row">
+      <input type="text" id="answer-input" autocomplete="off" autocapitalize="off"
+             aria-label="Твой ответ" placeholder="Пиши здесь — можно пером">
+      <button class="block hit-btn" id="hit-btn">⛏ Разбить</button>
+    </div>`;
+  const input = el.querySelector('#answer-input');
+  const submit = () => {
+    if (!input.value.trim()) return;
+    if (checkAnswer(task, input.value)) {
+      input.classList.add('ok');
+      input.disabled = true;
+      onCorrect(session, task);
+    } else {
+      input.classList.add('bad');
+      setTimeout(() => input.classList.remove('bad'), 500);
+      onWrong(session, task);
+    }
+  };
+  el.querySelector('#hit-btn').addEventListener('click', submit);
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+  input.focus();
+}
+
+function renderOrder(session, task, el) {
+  let step = 0;
+  el.innerHTML = `<p class="order-hint">Тапай блоки по порядку</p>` + task.blocks
+    .map((b) => `<button class="block" data-v="${b}">${b}</button>`)
+    .join('');
+  el.querySelectorAll('.block').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.v === String(task.answer[step])) {
+        step += 1;
+        btn.classList.add('picked');
+        btn.disabled = true;
+        btn.insertAdjacentHTML('beforeend', `<span class="pick-num">${step}</span>`);
+        if (step === task.answer.length) onCorrect(session, task);
+      } else {
+        step = 0;
+        el.querySelectorAll('.block').forEach((b) => {
+          b.classList.remove('picked');
+          b.disabled = false;
+          b.querySelector('.pick-num')?.remove();
+        });
+        btn.classList.add('cracked');
+        setTimeout(() => btn.classList.remove('cracked'), 500);
+        onWrong(session, task);
+      }
+    });
+  });
+}
+
+function renderMatch(session, task, el) {
+  // пары: левый столбец по порядку, правый перемешан детерминированно (reverse)
+  const left = task.pairs.map((p) => p[0]);
+  const right = task.pairs.map((p) => p[1]).reverse();
+  let selectedLeft = null;
+  let matched = 0;
+
+  el.innerHTML = `
+    <div class="match-cols">
+      <div class="match-col">${left.map((v) => `<button class="block" data-side="l" data-v="${v}">${v}</button>`).join('')}</div>
+      <div class="match-col">${right.map((v) => `<button class="block" data-side="r" data-v="${v}">${v}</button>`).join('')}</div>
+    </div>`;
+
+  el.querySelectorAll('.block').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.side === 'l') {
+        el.querySelectorAll('[data-side="l"]').forEach((b) => b.classList.remove('picked'));
+        btn.classList.add('picked');
+        selectedLeft = btn;
+        return;
+      }
+      if (!selectedLeft) return;
+      const pair = task.pairs.find((p) => p[0] === selectedLeft.dataset.v);
+      if (pair && pair[1] === btn.dataset.v) {
+        [selectedLeft, btn].forEach((b) => { b.classList.add('broken'); b.disabled = true; });
+        selectedLeft = null;
+        matched += 1;
+        if (matched === task.pairs.length) onCorrect(session, task);
+      } else {
+        btn.classList.add('cracked');
+        setTimeout(() => btn.classList.remove('cracked'), 500);
+        onWrong(session, task);
+      }
+    });
+  });
+}
+
+/* ---------- исход попытки ---------- */
+
+function onCorrect(session, task) {
+  const { newStar, campTime } = award(session.subject.id, session.topicId, task);
+  renderHud();
+  session.queue.shift();
+
+  const icon = RESOURCE_ICON[task.resource || 'wood'];
+  const praise = PRAISE[Math.floor(Math.random() * PRAISE.length)];
+  feedback(session, 'ok', `${praise} ${icon} +1 · ✨ +${task.xp || 10} XP${newStar ? ' · ⭐ Звезда дня!' : ''}`);
+
+  showNext(session, campTime);
+}
+
+function onWrong(session, task) {
+  session.attempts += 1;
+  if (session.attempts === 1 && task.hint) {
+    feedback(session, 'warn', `Этот блок прочнее, чем кажется. Подсказка: ${task.hint}`);
+  } else {
+    // вторая ошибка: показываем устройство блока и идём дальше, блок вернётся позже
+    feedback(session, 'warn', `Смотри, как он устроен: ${task.explain} Вернёмся к нему позже.`);
+    session.queue.push(session.queue.shift());
+    showNext(session, false);
+  }
+}
+
+function feedback(session, kind, text) {
+  const el = session.container.querySelector('#task-feedback');
+  el.className = `task-feedback ${kind}`;
+  el.textContent = text;
+}
+
+function showNext(session, campTime) {
+  const btn = session.container.querySelector('#task-next');
+  btn.hidden = false;
+  btn.addEventListener('click', () => {
+    if (campTime) renderCamp(session);
+    else nextTask(session);
+  }, { once: true });
+}
+
+/* ---------- финалы ---------- */
+
+function renderTopicDone(session) {
+  session.container.innerHTML = `
+    <div class="finale">
+      <div class="finale-icon">⛏️</div>
+      <h2>Жила выработана!</h2>
+      <p>«${session.topic.title}» — все ${session.total} блоков разбиты. Отличная смена, напарник.</p>
+      <a href="#subject/${session.subject.id}" class="block hit-btn">К карте ${session.subject.place}</a>
+    </div>`;
+}
+
+// Мягкий стоп: три звезды собраны — разведчик ставит лагерь. Без замков и таймеров.
+function renderCamp(session) {
+  session.container.innerHTML = `
+    <div class="finale">
+      <div class="finale-icon">🏕️</div>
+      <h2>Три звезды — ставим лагерь</h2>
+      <p>Разведчик разжёг костёр: на сегодня улов отличный. Продолжим экспедицию завтра!</p>
+      <a href="#map" class="block hit-btn">На карту</a>
+      <a href="#subject/${session.subject.id}" class="camp-more">ещё один блок</a>
+    </div>`;
+}

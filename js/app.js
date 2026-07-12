@@ -1,12 +1,14 @@
 // Точка входа: hash-роутер и инициализация экранов.
 import { renderHud } from './character.js';
 import { renderMap, renderSubject } from './map.js';
+import { renderTaskScreen } from './task.js';
 
 let subjects = [];
 
 const screens = {
   map: document.getElementById('screen-map'),
   subject: document.getElementById('screen-subject'),
+  task: document.getElementById('screen-task'),
   profile: document.getElementById('screen-profile'),
 };
 
@@ -19,10 +21,18 @@ function show(name) {
 
 function route() {
   const hash = location.hash.slice(1) || 'map';
-  const [screen, param] = hash.split('/');
+  const [screen, param, param2] = hash.split('/');
 
   renderHud();
 
+  if (screen === 'task' && param && param2) {
+    const subject = subjects.find((s) => s.id === param);
+    if (subject) {
+      renderTaskScreen(screens.task, subject, param2);
+      show('task');
+      return;
+    }
+  }
   if (screen === 'subject' && param) {
     const subject = subjects.find((s) => s.id === param);
     if (subject) {

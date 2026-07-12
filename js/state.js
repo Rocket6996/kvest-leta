@@ -11,6 +11,8 @@ const DEFAULT_STATE = {
   // progress[subjectId][topicId] = массив id решённых заданий
   progress: {},
   dailyStars: 0,
+  dailySolved: 0,
+  dailyDate: '',
   lastPlayed: null,
 };
 
