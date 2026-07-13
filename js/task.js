@@ -256,18 +256,56 @@ async function unseenChest() {
 }
 let rewardsPromise = null;
 
+// Ошибка не раскрывает ответ и не пропускает блок. Помощь нарастает:
+// 1) способ (подсказка) → 2) разобранный пример → 3+) точечная опора,
+// но сам ответ ребёнок находит и вводит сам.
 function onWrong(session, task) {
   session.attempts += 1;
   recordMistake(session.subject.id, session.topicId);
-  if (session.attempts === 1 && task.hint) {
-    feedback(session, 'warn', 'Этот блок прочнее, чем кажется — глянь подсказку и попробуй ещё раз.');
-    openHint(session, task);
-  } else {
-    // вторая ошибка: показываем устройство блока и идём дальше, блок вернётся позже
-    feedback(session, 'warn', `Смотри, как он устроен: ${task.explain} Вернёмся к нему позже.`);
-    session.queue.push(session.queue.shift());
-    showNext(session, false);
+  const n = session.attempts;
+
+  if (n === 1) {
+    setHint(session, task.hint || 'Подумай ещё раз — ты близко.');
+    feedback(session, 'warn', 'Не тот блок. Вот подсказка — попробуй снова.');
+    return;
   }
+  if (n === 2 && session.topic.example) {
+    setHint(session, session.topic.example);
+    feedback(session, 'warn', 'Ещё попытка! Разберём похожий пример.');
+    return;
+  }
+  // 3-я и далее: даём опору, но не ответ; блок остаётся, пока не решён
+  scaffold(session, task);
+}
+
+function setHint(session, text) {
+  const el = session.container.querySelector('#task-hint');
+  el.textContent = text;
+  el.hidden = !text;
+}
+
+// Точечная помощь по типу задания — так, чтобы ответ всё равно найти самому.
+function scaffold(session, task) {
+  if (task.type === 'input') {
+    const ans = Array.isArray(task.answer) ? String(task.answer[0]) : String(task.answer);
+    const reveal = Math.min(ans.length - 1, session.attempts - 2); // последняя буква скрыта всегда
+    if (reveal >= 1) {
+      feedback(session, 'warn', `Не сдавайся! Начало ответа: «${ans.slice(0, reveal)}…» — допиши сам.`);
+    } else {
+      feedback(session, 'warn', 'Ещё разок — перечитай подсказку и пример над полем.');
+    }
+    return;
+  }
+  if (task.type === 'choice') {
+    // убираем один ещё активный неверный вариант — выбор сужается, но не решается за ребёнка
+    const wrong = [...session.container.querySelectorAll('#task-blocks .block')]
+      .find((b) => !b.disabled && !checkAnswer(task, task.blocks[Number(b.dataset.i)]));
+    if (wrong) { wrong.disabled = true; wrong.classList.add('cracked'); }
+    feedback(session, 'warn', 'Убираю один неверный блок — так легче найти правильный.');
+    return;
+  }
+  // order/match сбрасываются сами и всегда решаются перебором
+  feedback(session, 'warn', 'Почти! Попробуй ещё раз, ориентируясь на подсказку.');
 }
 
 function feedback(session, kind, text) {
