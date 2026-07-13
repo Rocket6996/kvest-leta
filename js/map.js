@@ -1,7 +1,37 @@
 // Хаб-карта: четыре «двери» предметов вокруг лагеря разведчика.
 import { solvedCount } from './state.js';
-import { solvedInTopic } from './engine.js';
+import { solvedInTopic, isSolved } from './engine.js';
 import { scoutSvg } from './character.js';
+
+const RESOURCE_ICON = { wood: '🪵', stone: '🪨', iron: '⛓️', gold: '⭐' };
+
+// какие ресурсы ещё можно добыть в подтеме (по нерешённым заданиям)
+const contentCache = {};
+async function loadContent(subjectId) {
+  if (!(subjectId in contentCache)) {
+    try {
+      contentCache[subjectId] = await (await fetch(`content/${subjectId}.json`)).json();
+    } catch {
+      contentCache[subjectId] = null;
+    }
+  }
+  return contentCache[subjectId];
+}
+
+function remainingLabel(subject, topicContent) {
+  if (!topicContent) return '';
+  const left = {};
+  for (const task of topicContent.tasks) {
+    if (!isSolved(subject.id, topicContent.id, task.id)) {
+      const r = task.resource || 'wood';
+      left[r] = (left[r] || 0) + 1;
+    }
+  }
+  const parts = ['wood', 'stone', 'iron', 'gold']
+    .filter((r) => left[r])
+    .map((r) => `${RESOURCE_ICON[r]}${left[r]}`);
+  return parts.length ? `<span class="topic-res">в жиле: ${parts.join(' ')}</span>` : '<span class="topic-res">✓ выработана</span>';
+}
 
 // позиции дверей на карте 900×520
 const DOOR_POS = [
@@ -80,8 +110,10 @@ export function renderMap(container, subjects, onOpenSubject) {
   });
 }
 
-// Мини-карта предмета: пока список подтем; станет картой на неделе 3.
-export function renderSubject(container, subject) {
+// Мини-карта предмета: список подтем с остатком добычи в каждой жиле.
+export async function renderSubject(container, subject) {
+  const content = subject.ready ? await loadContent(subject.id) : null;
+
   const rows = subject.topics.map((t) => {
     const solved = solvedInTopic(subject.id, t.id);
     if (!subject.ready) {
@@ -93,9 +125,10 @@ export function renderSubject(container, subject) {
     }
     // книги открываются в читалку, обычные темы — сразу в задания
     const href = subject.books ? `#book/${t.id}` : `#task/${subject.id}/${t.id}`;
+    const topicContent = content?.topics.find((ct) => ct.id === t.id);
     return `
       <a class="topic-card" href="${href}" style="border-left-color: ${subject.color}">
-        <span>${subject.books ? '📖 ' : ''}${t.title}</span>
+        <span>${subject.books ? '📖 ' : ''}${t.title}${remainingLabel(subject, topicContent)}</span>
         <span class="count">${solved} / ${t.tasks}</span>
       </a>`;
   }).join('');

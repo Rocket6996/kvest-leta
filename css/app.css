@@ -436,3 +436,15 @@ body {
 .craft-btn:disabled { opacity: 0.45; border-color: var(--text-dim); cursor: default; }
 
 .danger-btn { border-color: var(--err); color: var(--err); font-size: var(--fs-small); }
+
+/* видимость наград: чип в задании и остаток добычи в списке жил */
+.task-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.task-reward {
+  color: var(--text-dim);
+  font-size: var(--fs-small);
+  background: var(--bg-sunken);
+  border-radius: var(--radius);
+  padding: 4px 12px;
+  white-space: nowrap;
+}
+.topic-res { display: block; color: var(--text-dim); font-size: var(--fs-small); margin-top: 2px; }

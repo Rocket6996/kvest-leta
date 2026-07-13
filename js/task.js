@@ -70,7 +70,10 @@ function renderTask(session, task) {
     <a href="#subject/${subject.id}" class="back-link">← ${subject.place}</a>
     ${progressLine(session)}
     <div class="task-panel ${isBoss ? 'boss' : ''}">
-      ${isBoss ? '<div class="boss-tag">Босс-блок</div>' : ''}
+      <div class="task-head">
+        ${isBoss ? '<div class="boss-tag">Босс-блок</div>' : '<span></span>'}
+        <span class="task-reward" title="Награда за этот блок">${RESOURCE_ICON[task.resource || 'wood']} +1 · ✨ +${task.xp || 10}</span>
+      </div>
       <p class="task-prompt">${task.prompt}</p>
       <div class="task-blocks" id="task-blocks"></div>
       <button class="hint-btn" id="hint-btn" type="button">💡 Подсказка</button>
