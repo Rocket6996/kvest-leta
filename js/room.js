@@ -98,25 +98,34 @@ const ITEM_ART = {
   dog_shirt: `
     <g><rect x="398" y="398" width="30" height="18" rx="4" fill="var(--teal)"/>
     <rect x="392" y="398" width="10" height="9" rx="2" fill="var(--teal)"/></g>`,
-  cage: `
+  cage: (birdColor = '#5aa05a') => `
     <g><rect x="497" y="78" width="4" height="14" fill="#3d4653"/>
     <rect x="478" y="92" width="42" height="52" rx="10" fill="none" stroke="#3d4653" stroke-width="3"/>
     ${[486, 494, 502, 510].map((x) => `<line x1="${x}" y1="94" x2="${x}" y2="142" stroke="#3d4653" stroke-width="2"/>`).join('')}
-    <rect x="490" y="118" width="14" height="10" rx="4" fill="#5aa05a"/>
-    <rect x="500" y="112" width="9" height="9" rx="3" fill="#5aa05a"/>
-    <rect x="506" y="114" width="4" height="3" fill="var(--mustard)"/>
-    <rect x="486" y="122" width="6" height="4" fill="var(--err)"/>
-    <line x1="480" y1="132" x2="518" y2="132" stroke="#3d4653" stroke-width="2"/></g>`,
-  cage2: `
+    <line x1="480" y1="132" x2="518" y2="132" stroke="#3d4653" stroke-width="2"/>
+    <!-- попугай: тельце, крыло, хвост, лапки, глаз, клюв -->
+    <rect x="486" y="120" width="5" height="4" fill="${birdColor}"/>
+    <rect x="490" y="117" width="12" height="10" rx="4" fill="${birdColor}"/>
+    <rect x="492" y="120" width="7" height="5" fill="#3f7a4a"/>
+    <rect x="500" y="110" width="9" height="9" rx="3" fill="${birdColor}"/>
+    <rect x="507" y="113" width="4" height="3" fill="var(--mustard)"/>
+    <rect x="503" y="112" width="2" height="2" fill="#171b20"/>
+    <rect x="494" y="127" width="1" height="5" fill="var(--mustard)"/>
+    <rect x="498" y="127" width="1" height="5" fill="var(--mustard)"/></g>`,
+  cage2: (birdColor = '#5aa05a') => `
     <g><rect x="495" y="70" width="6" height="14" fill="var(--mustard)"/>
     <rect x="472" y="84" width="54" height="66" rx="12" fill="none" stroke="var(--mustard)" stroke-width="3"/>
     ${[482, 491, 500, 509, 518].map((x) => `<line x1="${x}" y1="86" x2="${x}" y2="148" stroke="var(--mustard)" stroke-width="2"/>`).join('')}
-    <rect x="486" y="118" width="16" height="12" rx="5" fill="#5aa05a"/>
-    <rect x="498" y="110" width="10" height="10" rx="3" fill="#5aa05a"/>
-    <rect x="505" y="113" width="5" height="3" fill="var(--err)"/>
-    <rect x="482" y="123" width="7" height="4" fill="var(--err)"/>
-    <line x1="474" y1="136" x2="524" y2="136" stroke="var(--mustard)" stroke-width="2"/>
-    <circle cx="499" cy="94" r="3" fill="var(--mustard)"/></g>`,
+    <line x1="474" y1="138" x2="524" y2="138" stroke="var(--mustard)" stroke-width="2"/>
+    <circle cx="499" cy="94" r="3" fill="var(--mustard)"/>
+    <rect x="484" y="121" width="6" height="5" fill="${birdColor}"/>
+    <rect x="489" y="117" width="14" height="12" rx="5" fill="${birdColor}"/>
+    <rect x="491" y="120" width="8" height="6" fill="#3f7a4a"/>
+    <rect x="500" y="108" width="10" height="10" rx="3" fill="${birdColor}"/>
+    <rect x="508" y="112" width="4" height="3" fill="var(--err)"/>
+    <rect x="503" y="111" width="2" height="2" fill="#171b20"/>
+    <rect x="494" y="129" width="1" height="6" fill="var(--mustard)"/>
+    <rect x="499" y="129" width="1" height="6" fill="var(--mustard)"/></g>`,
 };
 
 // улучшения: старшая версия заменяет младшую на рисунке
@@ -138,11 +147,20 @@ export async function renderRoom(container) {
   // собираем предметы в группы-«юниты» (питомец с одеждой — одно целое),
   // каждый юнит сдвигается на свой сохранённый offset и перетаскивается целиком
   const pos = s.roomPos || {};
+  // цвет питомца (пока только попугай; выбор цвета — в отдельной доработке)
+  const petColor = s.petColors || {};
+  const artOf = (id) => {
+    const a = ITEM_ART[id];
+    if (typeof a !== 'function') return a;
+    if (id === 'cage' || id === 'cage2') return a(petColor.parrot);
+    return a();
+  };
+
   const units = {};
   for (const id of Object.keys(ITEM_ART)) {
     if (!crafted.has(id) || hidden.has(id)) continue;
     const u = unitOf(id);
-    (units[u] ??= []).push(ITEM_ART[id]);
+    (units[u] ??= []).push(artOf(id));
   }
   const art = Object.entries(units).map(([u, parts]) => {
     const p = pos[u] || {};
@@ -172,7 +190,18 @@ export async function renderRoom(container) {
       </div>`;
   };
 
-  const list = rewards.items.map(itemRow).join('') + `
+  // магазин по понятным блокам, а не вразнобой
+  const GROUPS = [
+    ['furniture', '🛋️ Мебель'],
+    ['decor', '🖼️ Декор'],
+    ['pets', '🐾 Питомцы'],
+    ['petwear', '🎀 Одежда питомцев'],
+  ];
+  const list = GROUPS.map(([g, title]) => {
+    const rows = rewards.items.filter((it) => it.group === g).map(itemRow).join('');
+    return rows ? `<h3 class="shop-group">${title}</h3>${rows}` : '';
+  }).join('') + `
+    <h3 class="shop-group">🏆 Финал</h3>
     <div class="equip-item ${crafted.has(finale.item) ? '' : 'locked'}">
       <span class="inv-icon">${crafted.has(finale.item) ? finale.icon : '🔒'}</span>
       <span>Золотой трофей<span class="craft-cost">награда Сундука легенды</span></span>

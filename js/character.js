@@ -16,13 +16,18 @@ export const OUTFITS = {
   violet: '#7d6bb5', mustard: '#d9a441', terra: '#c4735f',
   rose: '#c47a8f', lavender: '#9a86c4', plum: '#8a5a6a',
 };
-const HAIR = '#4a3826';
+// Цвета волос: основные + яркие (розовый, синий, зелёный).
+export const HAIR_COLORS = {
+  brown: '#4a3826', black: '#23282f', blond: '#c9a24a', ginger: '#b5562a',
+  pink: '#d47ba5', blue: '#4a7fb5', green: '#5a9b6a',
+};
 
 // size — сторона квадрата в px; персонаж собран из «пикселей» 8×8 сетки.
 // hero === 'girl' — длинные волосы, обрамляющие лицо; иначе короткая стрижка.
 export function scoutSvg(size = 48) {
   const s = getState();
   const jacket = OUTFITS[s.outfit] || OUTFITS.default;
+  const HAIR = HAIR_COLORS[s.hairColor] || HAIR_COLORS.brown;
   const girl = s.hero === 'girl';
   const girlHair = girl ? `
     <rect x="1" y="0" width="1" height="1" fill="${HAIR}"/>

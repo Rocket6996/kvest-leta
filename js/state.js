@@ -12,6 +12,7 @@ const DEFAULT_STATE = {
   roomItems: [],
   roomPos: {},  // { unitId: {dx, dy} } — ручная расстановка предметов в комнате
   hero: null,   // 'boy' | 'girl' — выбирается при первом запуске
+  hairColor: null, // цвет волос (null = каштановый)
   outfit: null, // цвет куртки персонажа (null = родная бирюзовая)
   equipment: [],
   // progress[subjectId][topicId] = массив id решённых заданий

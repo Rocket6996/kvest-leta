@@ -486,3 +486,5 @@ body {
 #room-svg.editing .room-item.grabbing { cursor: grabbing; filter: drop-shadow(0 0 8px var(--mustard)); }
 .room-bar-btns { display: flex; gap: 8px; }
 .equip-list[hidden] { display: none; }
+.shop-group { margin: 20px auto 8px; max-width: 640px; color: var(--text-dim); font-size: var(--fs-body); }
+.shop-group:first-child { margin-top: 4px; }
