@@ -61,6 +61,10 @@ function touchDay() {
 // Начислить награду за решённое задание.
 // Возвращает { newStar, campTime } для реакции интерфейса.
 export function award(subjectId, topicId, task) {
+  // защита от повторного клика по уже разбитому блоку: награда один раз
+  if (isSolved(subjectId, topicId, task.id)) {
+    return { newStar: false, campTime: false };
+  }
   touchDay();
   const s = getState();
 

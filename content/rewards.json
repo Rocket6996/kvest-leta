@@ -1,22 +1,210 @@
 {
   "items": [
-    { "id": "bed", "icon": "🛏️", "title": "Спальник разведчика", "cost": { "wood": 6 } },
-    { "id": "chest", "icon": "🧰", "title": "Сундук для находок", "cost": { "wood": 8, "stone": 4 } },
-    { "id": "bench", "icon": "🛠️", "title": "Верстак", "cost": { "wood": 10, "stone": 6 } },
-    { "id": "lantern", "icon": "🏮", "title": "Фонарь шахты", "cost": { "stone": 6, "iron": 4 } },
-    { "id": "cat", "icon": "🐈", "title": "Кот-компаньон", "cost": { "stone": 10, "gold": 2 } },
-    { "id": "shelf", "icon": "📚", "title": "Книжная полка", "cost": { "wood": 10, "stone": 6, "iron": 2 } },
-    { "id": "rug", "icon": "🧶", "title": "Ковёр с узором", "cost": { "stone": 8, "iron": 6 } },
-    { "id": "telescope", "icon": "🔭", "title": "Телескоп", "cost": { "iron": 10, "gold": 4 } },
-    { "id": "banner", "icon": "🚩", "title": "Знамя экспедиции", "cost": { "wood": 6, "stone": 6, "iron": 6, "gold": 2 } }
+    {
+      "id": "bed",
+      "icon": "🛏️",
+      "title": "Спальник разведчика",
+      "cost": {
+        "wood": 6
+      }
+    },
+    {
+      "id": "chest",
+      "icon": "🧰",
+      "title": "Сундук для находок",
+      "cost": {
+        "wood": 7,
+        "stone": 4
+      }
+    },
+    {
+      "id": "bench",
+      "icon": "🛠️",
+      "title": "Верстак",
+      "cost": {
+        "wood": 8,
+        "stone": 5
+      }
+    },
+    {
+      "id": "lantern",
+      "icon": "🏮",
+      "title": "Фонарь шахты",
+      "cost": {
+        "stone": 6,
+        "iron": 4
+      }
+    },
+    {
+      "id": "cat",
+      "icon": "🐈",
+      "title": "Кот-компаньон",
+      "cost": {
+        "stone": 8,
+        "gold": 2
+      }
+    },
+    {
+      "id": "shelf",
+      "icon": "📚",
+      "title": "Книжная полка",
+      "cost": {
+        "wood": 8,
+        "stone": 6,
+        "iron": 2
+      }
+    },
+    {
+      "id": "rug",
+      "icon": "🧶",
+      "title": "Ковёр с узором",
+      "cost": {
+        "stone": 6,
+        "iron": 4
+      }
+    },
+    {
+      "id": "telescope",
+      "icon": "🔭",
+      "title": "Телескоп",
+      "cost": {
+        "iron": 7,
+        "gold": 4
+      }
+    },
+    {
+      "id": "banner",
+      "icon": "🚩",
+      "title": "Знамя экспедиции",
+      "cost": {
+        "wood": 6,
+        "stone": 5,
+        "iron": 4,
+        "gold": 2
+      }
+    },
+    {
+      "id": "wallpaper",
+      "icon": "🎨",
+      "title": "Обои «Бирюзовый вечер»",
+      "cost": {
+        "stone": 5,
+        "iron": 2
+      }
+    },
+    {
+      "id": "painting",
+      "icon": "🖼️",
+      "title": "Картина «Горы»",
+      "cost": {
+        "wood": 4,
+        "stone": 4
+      }
+    },
+    {
+      "id": "dog",
+      "icon": "🐕",
+      "title": "Пёс-следопыт",
+      "cost": {
+        "wood": 6,
+        "iron": 3
+      }
+    },
+    {
+      "id": "cat_scarf",
+      "icon": "🧣",
+      "title": "Шарф для кота",
+      "cost": {
+        "wood": 4
+      },
+      "requires": "cat"
+    },
+    {
+      "id": "dog_bandana",
+      "icon": "🪢",
+      "title": "Бандана для пса",
+      "cost": {
+        "stone": 4
+      },
+      "requires": "dog"
+    },
+    {
+      "id": "cage",
+      "icon": "🐦",
+      "title": "Попугай в клетке",
+      "cost": {
+        "wood": 6,
+        "iron": 4
+      }
+    },
+    {
+      "id": "cage2",
+      "icon": "✨",
+      "title": "Золочёная клетка — улучшение",
+      "cost": {
+        "iron": 4,
+        "gold": 3
+      },
+      "requires": "cage"
+    },
+    {
+      "id": "jacket_violet",
+      "icon": "🟣",
+      "title": "Куртка фиолетовая",
+      "cost": {
+        "stone": 5
+      },
+      "outfit": "violet"
+    },
+    {
+      "id": "jacket_mustard",
+      "icon": "🟡",
+      "title": "Куртка горчичная",
+      "cost": {
+        "wood": 5
+      },
+      "outfit": "mustard"
+    },
+    {
+      "id": "jacket_terra",
+      "icon": "🟤",
+      "title": "Куртка терракотовая",
+      "cost": {
+        "iron": 4
+      },
+      "outfit": "terra"
+    }
   ],
   "milestones": [
-    { "resources": 185, "icon": "🏆", "title": "Сундук легенды", "item": "trophy", "real": true, "prize": "Главный сюрприз лета" }
+    {
+      "resources": 185,
+      "icon": "🏆",
+      "title": "Сундук легенды",
+      "item": "trophy",
+      "real": true,
+      "prize": "Главный сюрприз лета"
+    }
   ],
   "equipment": [
-    { "level": 2, "icon": "⛏️", "title": "Кирка разведчика" },
-    { "level": 4, "icon": "🏮", "title": "Фонарь шахтёра" },
-    { "level": 6, "icon": "🧥", "title": "Плащ странника" },
-    { "level": 8, "icon": "🪽", "title": "Крылья экспедиции" }
+    {
+      "level": 2,
+      "icon": "⛏️",
+      "title": "Кирка разведчика"
+    },
+    {
+      "level": 4,
+      "icon": "🏮",
+      "title": "Фонарь шахтёра"
+    },
+    {
+      "level": 6,
+      "icon": "🧥",
+      "title": "Плащ странника"
+    },
+    {
+      "level": 8,
+      "icon": "🪽",
+      "title": "Крылья экспедиции"
+    }
   ]
 }

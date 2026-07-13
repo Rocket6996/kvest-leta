@@ -38,6 +38,7 @@ export async function renderTaskScreen(container, subject, topicId) {
     container, subject, topicId, topic,
     queue, total: topic.tasks.length,
     attempts: 0, // ошибок на текущем задании
+    answered: false, // текущее задание уже засчитано
   };
   nextTask(session);
 }
@@ -48,6 +49,7 @@ function nextTask(session) {
     return;
   }
   session.attempts = 0;
+  session.answered = false;
   renderTask(session, session.queue[0]);
 }
 
@@ -218,6 +220,12 @@ function openHint(session, task) {
 /* ---------- исход попытки ---------- */
 
 async function onCorrect(session, task) {
+  // задание засчитывается один раз: повторные тапы по разбитому блоку не дают ресурсов
+  if (session.answered) return;
+  session.answered = true;
+  session.container.querySelectorAll('#task-blocks button, #task-blocks input')
+    .forEach((el) => { el.disabled = true; });
+
   const { newStar, campTime } = award(session.subject.id, session.topicId, task);
   renderHud();
   session.queue.shift();

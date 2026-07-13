@@ -10,6 +10,7 @@ const DEFAULT_STATE = {
   resources: { wood: 0, stone: 0, iron: 0, gold: 0 },
   totalEarned: 0,
   roomItems: [],
+  outfit: null, // цвет куртки персонажа (null = родная бирюзовая)
   equipment: [],
   // progress[subjectId][topicId] = массив id решённых заданий
   progress: {},

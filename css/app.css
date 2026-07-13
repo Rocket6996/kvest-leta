@@ -434,3 +434,5 @@ body {
   flex-shrink: 0;
 }
 .craft-btn:disabled { opacity: 0.45; border-color: var(--text-dim); cursor: default; }
+
+.danger-btn { border-color: var(--err); color: var(--err); font-size: var(--fs-small); }

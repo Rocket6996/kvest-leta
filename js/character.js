@@ -9,8 +9,12 @@ const RESOURCE_META = {
   gold:  { icon: '⭐', title: 'Золото' },
 };
 
+// цвета курток из мастерской; null — родная бирюзовая
+const OUTFITS = { violet: '#7d6bb5', mustard: '#d9a441', terra: '#c4735f' };
+
 // size — сторона квадрата в px; персонаж собран из «пикселей» 8×8 сетки
 export function scoutSvg(size = 48) {
+  const jacket = OUTFITS[getState().outfit] || '#2e8d87';
   return `
   <svg viewBox="0 0 8 8" width="${size}" height="${size}" shape-rendering="crispEdges" aria-label="Крафт-разведчик">
     <!-- голова -->
@@ -20,8 +24,8 @@ export function scoutSvg(size = 48) {
     <!-- глаза -->
     <rect x="3" y="1" width="1" height="1" fill="#2b3a42"/>
     <rect x="5" y="1" width="1" height="1" fill="#2b3a42"/>
-    <!-- куртка разведчика (бирюзовая) -->
-    <rect x="2" y="3" width="4" height="3" fill="#2e8d87"/>
+    <!-- куртка разведчика (цвет — из гардероба) -->
+    <rect x="2" y="3" width="4" height="3" fill="${jacket}"/>
     <!-- ремень -->
     <rect x="2" y="5" width="4" height="1" fill="#4a3826"/>
     <!-- руки -->

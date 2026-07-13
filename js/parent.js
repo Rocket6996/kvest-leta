@@ -120,6 +120,12 @@ async function renderPanel(container, subjects) {
     </div>
     <p class="task-feedback" id="backup-feedback" aria-live="polite"></p>
 
+    <h3 class="parent-h3">Опасная зона</h3>
+    <div class="input-row">
+      <button class="block danger-btn" id="reset-all">Сбросить весь прогресс</button>
+    </div>
+    <p class="stub-note">Стирает уровень, ресурсы, комнату и статистику на этом устройстве. Перед сбросом можно скачать копию.</p>
+
     <p class="disclaimer">Приз-механика использует только оригинальные материалы. NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.</p>`;
 
   container.querySelectorAll('.give-btn').forEach((btn) => {
@@ -128,6 +134,14 @@ async function renderPanel(container, subjects) {
       save();
       renderPanel(container, subjects);
     });
+  });
+
+  container.querySelector('#reset-all').addEventListener('click', () => {
+    if (confirm('Точно стереть весь прогресс? Это не отменить (кроме восстановления из копии).')) {
+      localStorage.removeItem('quest-save-v1');
+      location.hash = '#map';
+      location.reload();
+    }
   });
 
   container.querySelector('#backup-save').addEventListener('click', () => {
