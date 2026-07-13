@@ -164,33 +164,6 @@
         "gold": 3
       },
       "requires": "cage"
-    },
-    {
-      "id": "jacket_violet",
-      "icon": "🟣",
-      "title": "Куртка фиолетовая",
-      "cost": {
-        "stone": 5
-      },
-      "outfit": "violet"
-    },
-    {
-      "id": "jacket_mustard",
-      "icon": "🟡",
-      "title": "Куртка горчичная",
-      "cost": {
-        "wood": 5
-      },
-      "outfit": "mustard"
-    },
-    {
-      "id": "jacket_terra",
-      "icon": "🟤",
-      "title": "Куртка терракотовая",
-      "cost": {
-        "iron": 4
-      },
-      "outfit": "terra"
     }
   ],
   "milestones": [

@@ -6,6 +6,7 @@ import { renderProfile } from './profile.js';
 import { renderParent } from './parent.js';
 import { renderRoom } from './room.js';
 import { renderBook, booksSubject } from './book.js';
+import { needHero, openHeroPicker } from './hero.js';
 
 let subjects = [];
 
@@ -81,6 +82,9 @@ async function init() {
   subjects = (await res.json()).subjects;
   window.addEventListener('hashchange', route);
   route();
+
+  // при первом запуске — знакомство и выбор героя
+  if (needHero()) openHeroPicker();
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});

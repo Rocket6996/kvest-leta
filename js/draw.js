@@ -1,7 +1,13 @@
 // Черновик: canvas для решения «в столбик» пером или пальцем.
-// Pointer Events: pointerType === 'pen' даёт нажим Apple Pencil (толщина линии).
-// В standalone-режиме iPadOS нажим может не приходить — тогда линия просто ровная,
-// функция от этого не страдает.
+// Оптимизации против лага в standalone-режиме iPadOS:
+//  1) рисуем короткими сегментами (последняя точка → новая), а не одним
+//     растущим путём — иначе каждый штрих перерисовывает всю линию (O(n²));
+//  2) координаты холста кешируем на время штриха, не дёргаем layout на каждый
+//     pointermove;
+//  3) забираем промежуточные точки пера getCoalescedEvents() — линия гладкая
+//     даже при быстром письме.
+// Нажим Apple Pencil (pressure) задаёт толщину; в standalone он может не
+// приходить — тогда линия ровная, функция не страдает.
 export function initScratchpad(host) {
   host.insertAdjacentHTML('beforeend', `
     <details class="scratch">
@@ -12,16 +18,18 @@ export function initScratchpad(host) {
 
   const details = host.querySelector('.scratch');
   const canvas = host.querySelector('.scratch-canvas');
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d', { desynchronized: true }); // ниже задержка ввода
   let drawing = false;
+  let rect = null;      // кеш положения холста на время штриха
+  let lastX = 0, lastY = 0;
 
   function resize() {
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    if (!rect.width) return;
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-    ctx.scale(dpr, dpr);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2); // на iPad Pro хватает 2×
+    const r = canvas.getBoundingClientRect();
+    if (!r.width) return;
+    canvas.width = Math.round(r.width * dpr);
+    canvas.height = Math.round(r.height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // сброс, а не накопление масштаба
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--text').trim();
@@ -29,29 +37,43 @@ export function initScratchpad(host) {
 
   details.addEventListener('toggle', () => { if (details.open) resize(); });
 
-  function pos(e) {
-    const rect = canvas.getBoundingClientRect();
-    return [e.clientX - rect.left, e.clientY - rect.top];
+  const px = (e) => [e.clientX - rect.left, e.clientY - rect.top];
+
+  function segment(e) {
+    ctx.lineWidth = e.pointerType === 'pen' && e.pressure > 0 ? 1.5 + e.pressure * 5 : 3;
+    const [x, y] = px(e);
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    lastX = x; lastY = y;
   }
 
   canvas.addEventListener('pointerdown', (e) => {
     // ладонь, лежащая на экране рядом с пером, не рисует
     if (e.pointerType === 'touch' && e.width > 30) return;
     drawing = true;
+    rect = canvas.getBoundingClientRect(); // один раз на штрих
     canvas.setPointerCapture(e.pointerId);
+    [lastX, lastY] = px(e);
+    // точка от одиночного касания
+    ctx.lineWidth = e.pointerType === 'pen' && e.pressure > 0 ? 1.5 + e.pressure * 5 : 3;
     ctx.beginPath();
-    ctx.moveTo(...pos(e));
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(lastX + 0.01, lastY);
+    ctx.stroke();
     e.preventDefault();
   });
 
   canvas.addEventListener('pointermove', (e) => {
     if (!drawing) return;
-    // перо с нажимом — живая линия; без нажима (standalone) — ровные 3px
-    ctx.lineWidth = e.pointerType === 'pen' && e.pressure > 0 ? 1.5 + e.pressure * 5 : 3;
-    ctx.lineTo(...pos(e));
-    ctx.stroke();
+    // все промежуточные точки пера, а не только последнюю;
+    // если список пуст (бывает у части событий) — рисуем по самому событию
+    const coalesced = e.getCoalescedEvents ? e.getCoalescedEvents() : null;
+    const points = coalesced && coalesced.length ? coalesced : [e];
+    for (const p of points) segment(p);
     e.preventDefault();
-  });
+  }, { passive: false });
 
   ['pointerup', 'pointercancel'].forEach((ev) =>
     canvas.addEventListener(ev, () => { drawing = false; }));

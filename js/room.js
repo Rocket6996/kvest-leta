@@ -2,7 +2,7 @@
 // что построить первым. Цены фиксированы и видны заранее; траты не влияют на
 // финальный приз (он считается по всему добытому). SVG в стиле персонажа.
 import { totalEarned, canAfford, craft } from './engine.js';
-import { getState, save as saveState } from './state.js';
+import { getState } from './state.js';
 import { renderHud, scoutSvg } from './character.js';
 
 const RESOURCE_ICON = { wood: '🪵', stone: '🪨', iron: '⛓️', gold: '⭐' };
@@ -134,18 +134,6 @@ export async function renderRoom(container) {
     .join('');
 
   const itemRow = (item) => {
-    // куртки: после покупки — «надеть», а не «в комнате»
-    if (item.outfit && crafted.has(item.id)) {
-      const worn = s.outfit === item.outfit;
-      return `
-        <div class="equip-item">
-          <span class="inv-icon">${item.icon}</span>
-          <span>${item.title}</span>
-          <button class="block craft-btn" data-wear="${item.outfit}" ${worn ? 'disabled' : ''}>
-            ${worn ? '✓ надета' : 'Надеть'}
-          </button>
-        </div>`;
-    }
     if (crafted.has(item.id)) {
       return `
         <div class="equip-item">
@@ -168,19 +156,7 @@ export async function renderRoom(container) {
       </div>`;
   };
 
-  const wornDefault = !s.outfit;
-  const defaultJacketRow = rewards.items.some((i) => i.outfit && crafted.has(i.id))
-    ? `
-      <div class="equip-item">
-        <span class="inv-icon">🟢</span>
-        <span>Куртка бирюзовая (родная)</span>
-        <button class="block craft-btn" data-wear="default" ${wornDefault ? 'disabled' : ''}>
-          ${wornDefault ? '✓ надета' : 'Надеть'}
-        </button>
-      </div>`
-    : '';
-
-  const list = rewards.items.map(itemRow).join('') + defaultJacketRow + `
+  const list = rewards.items.map(itemRow).join('') + `
     <div class="equip-item ${crafted.has(finale.item) ? '' : 'locked'}">
       <span class="inv-icon">${crafted.has(finale.item) ? finale.icon : '🔒'}</span>
       <span>Золотой трофей<span class="craft-cost">награда Сундука легенды</span></span>
@@ -219,13 +195,6 @@ export async function renderRoom(container) {
 
   container.querySelectorAll('.craft-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
-      if (btn.dataset.wear) {
-        s.outfit = btn.dataset.wear === 'default' ? null : btn.dataset.wear;
-        saveState();
-        renderHud();
-        renderRoom(container);
-        return;
-      }
       const item = rewards.items.find((i) => i.id === btn.dataset.item);
       if (item && craft(item.id, item.cost)) {
         renderHud();

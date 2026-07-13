@@ -327,8 +327,9 @@ function showNext(session, campTime, chest = null) {
 /* ---------- финалы ---------- */
 
 function renderTopicDone(session) {
-  const villagerNote = session.subject.id !== 'books'
-    ? '<p>🧑‍🌾 В лагерь пришёл новый житель — посмотри на карте!</p>'
+  const MASCOT_NOTE = { russian: '🦉 сова', math: '🐿️ белка', reading: '🦊 лиса', world: '🦔 ёжик' };
+  const villagerNote = MASCOT_NOTE[session.subject.id]
+    ? `<p>${MASCOT_NOTE[session.subject.id]} поселилась у двери — посмотри на карте!</p>`
     : '';
   session.container.innerHTML = `
     <div class="finale">

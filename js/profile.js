@@ -2,6 +2,7 @@
 import { getState, xpForLevel } from './state.js';
 import { totalEarned } from './engine.js';
 import { scoutSvg } from './character.js';
+import { openHeroPicker } from './hero.js';
 
 const RESOURCE_META = [
   ['wood', '🪵', 'Дерево'],
@@ -45,6 +46,7 @@ export async function renderProfile(container) {
         <div class="camp-level">Уровень ${s.level}</div>
         <div class="xp-bar big"><div class="xp-fill" style="width:${Math.round((s.xp / xpForLevel(s.level)) * 100)}%"></div></div>
         <p class="stub-note">${s.xp} / ${xpForLevel(s.level)} опыта до уровня ${s.level + 1}</p>
+        <button class="block hero-change" id="change-hero">Сменить внешность</button>
       </div>
 
       <div class="camp-card">
@@ -76,4 +78,8 @@ export async function renderProfile(container) {
       </div>
     </div>
     <a href="#parent" class="parent-link">для родителей</a>`;
+
+  container.querySelector('#change-hero')?.addEventListener('click', () => {
+    openHeroPicker(() => renderProfile(container));
+  });
 }

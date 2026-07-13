@@ -448,3 +448,32 @@ body {
   white-space: nowrap;
 }
 .topic-res { display: block; color: var(--text-dim); font-size: var(--fs-small); margin-top: 2px; }
+
+/* ---------- Выбор героя ---------- */
+.hero-overlay {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(20, 23, 27, 0.92);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+}
+.hero-card {
+  background: var(--bg-raised);
+  border-radius: var(--radius);
+  padding: 24px;
+  width: 100%; max-width: 420px;
+  text-align: center;
+}
+.hero-card h2 { margin-bottom: 12px; }
+.hero-preview { margin: 4px auto 16px; }
+.hero-row { display: flex; gap: var(--gap); justify-content: center; margin-bottom: 18px; }
+.hero-row .block { flex: 1; }
+.hero-row .block.picked { border-color: var(--mustard); }
+.hero-sub { color: var(--text-dim); font-size: var(--fs-small); margin-bottom: 8px; }
+.hero-colors { display: flex; flex-wrap: wrap; gap: var(--gap); justify-content: center; margin-bottom: 20px; }
+.hero-color {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 3px solid transparent; cursor: pointer;
+}
+.hero-color.picked { border-color: var(--text); }
+.hero-done { width: 100%; }
+.hero-change { margin-top: 12px; font-size: var(--fs-small); min-height: var(--tap-min); }
