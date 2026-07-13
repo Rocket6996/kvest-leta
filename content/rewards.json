@@ -129,6 +129,24 @@
       "requires": "dog"
     },
     {
+      "id": "cat_shirt",
+      "icon": "👕",
+      "title": "Футболка для кота",
+      "cost": {
+        "stone": 3
+      },
+      "requires": "cat"
+    },
+    {
+      "id": "dog_shirt",
+      "icon": "🎽",
+      "title": "Футболка для пса",
+      "cost": {
+        "wood": 3
+      },
+      "requires": "dog"
+    },
+    {
       "id": "cage",
       "icon": "🐦",
       "title": "Попугай в клетке",

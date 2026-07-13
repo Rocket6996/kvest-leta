@@ -85,6 +85,12 @@ const ITEM_ART = {
   cat_scarf: `
     <g><rect x="186" y="406" width="24" height="6" fill="var(--mustard)"/>
     <rect x="196" y="412" width="6" height="8" fill="var(--mustard)"/></g>`,
+  cat_shirt: `
+    <g><rect x="156" y="406" width="26" height="16" rx="4" fill="var(--violet)"/>
+    <rect x="152" y="406" width="8" height="8" rx="2" fill="var(--violet)"/></g>`,
+  dog_shirt: `
+    <g><rect x="398" y="398" width="30" height="18" rx="4" fill="var(--teal)"/>
+    <rect x="392" y="398" width="10" height="9" rx="2" fill="var(--teal)"/></g>`,
   cage: `
     <g><rect x="497" y="78" width="4" height="14" fill="#3d4653"/>
     <rect x="478" y="92" width="42" height="52" rx="10" fill="none" stroke="#3d4653" stroke-width="3"/>

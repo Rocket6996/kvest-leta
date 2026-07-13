@@ -286,11 +286,15 @@ function showNext(session, campTime, chest = null) {
 /* ---------- финалы ---------- */
 
 function renderTopicDone(session) {
+  const villagerNote = session.subject.id !== 'books'
+    ? '<p>🧑‍🌾 В лагерь пришёл новый житель — посмотри на карте!</p>'
+    : '';
   session.container.innerHTML = `
     <div class="finale">
       <div class="finale-icon">⛏️</div>
       <h2>Жила выработана!</h2>
       <p>«${session.topic.title}» — все ${session.total} блоков разбиты. Отличная смена, напарник.</p>
+      ${villagerNote}
       <a href="#subject/${session.subject.id}" class="block hit-btn">К карте ${session.subject.place}</a>
     </div>`;
 }

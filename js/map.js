@@ -15,6 +15,30 @@ function totalTasks(subject) {
   return subject.topics.reduce((sum, t) => sum + t.tasks, 0);
 }
 
+// жители лагеря: один приходит за каждую полностью выработанную подтему
+const HAIRS = ['#4a3826', '#7a5a3a', '#2b3a42', '#8a8577', '#c4735f', '#d9a441'];
+
+function villagerSvg(x, y, color, i) {
+  return `
+  <g transform="translate(${x}, ${y}) scale(3.5)" shape-rendering="crispEdges">
+    <rect x="1" y="0" width="4" height="1" fill="${HAIRS[i % HAIRS.length]}"/>
+    <rect x="1" y="1" width="4" height="2" fill="#c8a06a"/>
+    <rect x="2" y="1" width="1" height="1" fill="#2b3a42"/>
+    <rect x="4" y="1" width="1" height="1" fill="#2b3a42"/>
+    <rect x="1" y="3" width="4" height="2" fill="${color}"/>
+    <rect x="0" y="3" width="1" height="2" fill="#c8a06a"/>
+    <rect x="5" y="3" width="1" height="2" fill="#c8a06a"/>
+    <rect x="1" y="5" width="1" height="2" fill="#3d4653"/>
+    <rect x="4" y="5" width="1" height="2" fill="#3d4653"/>
+  </g>`;
+}
+
+function villagersFor(subject, pos, startIndex) {
+  const done = subject.topics.filter((t) => solvedInTopic(subject.id, t.id) >= t.tasks).length;
+  return Array.from({ length: done }, (_, k) =>
+    villagerSvg(pos.x + 6 + k * 32, pos.y + 188, subject.color, startIndex + k)).join('');
+}
+
 function doorSvg(subject, pos) {
   const solved = solvedCount(subject.id);
   const total = totalTasks(subject);
@@ -48,6 +72,7 @@ export function renderMap(container, subjects, onOpenSubject) {
         <text class="door-progress" x="48" y="116" dominant-baseline="hanging">Лагерь</text>
       </g>
       ${subjects.map((s, i) => doorSvg(s, DOOR_POS[i])).join('')}
+      ${subjects.map((s, i) => villagersFor(s, DOOR_POS[i], i * 6)).join('')}
     </svg>`;
 
   container.querySelectorAll('.door').forEach((door) => {
