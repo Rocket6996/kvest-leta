@@ -2,10 +2,17 @@
 // что построить первым. Цены фиксированы и видны заранее; траты не влияют на
 // финальный приз (он считается по всему добытому). SVG в стиле персонажа.
 import { totalEarned, canAfford, craft } from './engine.js';
-import { getState } from './state.js';
+import { getState, save } from './state.js';
 import { renderHud, scoutSvg } from './character.js';
 
 const RESOURCE_ICON = { wood: '🪵', stone: '🪨', iron: '⛓️', gold: '⭐' };
+
+// одежда «ездит» вместе со своим питомцем, клетка-улучшение — с клеткой:
+// перетаскиваются одной группой, а не по частям
+const UNIT = { cat_scarf: 'cat', cat_shirt: 'cat', dog_bandana: 'dog', dog_shirt: 'dog', cage2: 'cage' };
+const unitOf = (id) => UNIT[id] || id;
+
+let editing = false; // режим расстановки (по кнопке, не сохраняется)
 
 function costLabel(cost) {
   return Object.entries(cost).map(([t, n]) => `${n} ${RESOURCE_ICON[t]}`).join(' + ');
@@ -128,10 +135,19 @@ export async function renderRoom(container) {
     .filter(([hi]) => crafted.has(hi))
     .map(([, lo]) => lo));
 
-  const art = Object.keys(ITEM_ART)
-    .filter((id) => crafted.has(id) && !hidden.has(id))
-    .map((id) => ITEM_ART[id])
-    .join('');
+  // собираем предметы в группы-«юниты» (питомец с одеждой — одно целое),
+  // каждый юнит сдвигается на свой сохранённый offset и перетаскивается целиком
+  const pos = s.roomPos || {};
+  const units = {};
+  for (const id of Object.keys(ITEM_ART)) {
+    if (!crafted.has(id) || hidden.has(id)) continue;
+    const u = unitOf(id);
+    (units[u] ??= []).push(ITEM_ART[id]);
+  }
+  const art = Object.entries(units).map(([u, parts]) => {
+    const p = pos[u] || {};
+    return `<g class="room-item" data-unit="${u}" transform="translate(${p.dx || 0}, ${p.dy || 0})">${parts.join('')}</g>`;
+  }).join('');
 
   const itemRow = (item) => {
     if (crafted.has(item.id)) {
@@ -173,9 +189,16 @@ export async function renderRoom(container) {
       }).join('')).join('')
     : '';
 
+  const hasItems = Object.keys(units).length > 0;
   container.innerHTML = `
-    <h2>Комната разведчика</h2>
-    <svg id="room-svg" viewBox="0 0 800 480" xmlns="http://www.w3.org/2000/svg" aria-label="Комната с предметами из сундуков">
+    <div class="room-bar">
+      <h2>Комната разведчика</h2>
+      <div class="room-bar-btns">
+        ${editing ? '<button class="block room-edit-btn" id="room-reset">↺ Сбросить</button>' : ''}
+        ${hasItems ? `<button class="block room-edit-btn" id="room-edit">${editing ? '✓ Готово' : '✥ Расставить'}</button>` : ''}
+      </div>
+    </div>
+    <svg id="room-svg" class="${editing ? 'editing' : ''}" viewBox="0 0 800 480" xmlns="http://www.w3.org/2000/svg" aria-label="Комната с предметами из сундуков">
       <rect x="0" y="0" width="800" height="352" fill="${hasWallpaper ? '#243a3c' : '#2a3038'}"/>
       ${wallPattern}
       <rect x="0" y="352" width="800" height="128" fill="#1c2127"/>
@@ -190,8 +213,23 @@ export async function renderRoom(container) {
       <!-- разведчик всегда дома -->
       <foreignObject x="560" y="300" width="96" height="96">${scoutSvg(96)}</foreignObject>
     </svg>
-    <p class="stub-note room-note">Собирай ресурсы в шахтах и мастери обстановку — что построить первым, решаешь ты.</p>
-    <div class="equip-list room-items">${list}</div>`;
+    <p class="stub-note room-note">${editing
+      ? 'Тащи предметы пальцем или пером, куда хочешь. Нажми «Готово», когда закончишь.'
+      : 'Собирай ресурсы в шахтах и мастери обстановку — что построить первым, решаешь ты.'}</p>
+    <div class="equip-list room-items" ${editing ? 'hidden' : ''}>${list}</div>`;
+
+  if (editing) enableDrag(container);
+
+  container.querySelector('#room-edit')?.addEventListener('click', () => {
+    editing = !editing;
+    renderRoom(container);
+  });
+
+  container.querySelector('#room-reset')?.addEventListener('click', () => {
+    s.roomPos = {};
+    save();
+    renderRoom(container);
+  });
 
   container.querySelectorAll('.craft-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -202,4 +240,47 @@ export async function renderRoom(container) {
       }
     });
   });
+}
+
+// Перетаскивание предметов в режиме расстановки. Экранное смещение пальца
+// переводим в координаты холста (viewBox 800×480) и клампим, чтобы предмет
+// не уехал за пределы комнаты. Позиция каждого юнита хранится в state.roomPos.
+function enableDrag(container) {
+  const svg = container.querySelector('#room-svg');
+  const s = getState();
+
+  svg.querySelectorAll('.room-item').forEach((group) => {
+    let drag = null;
+
+    group.addEventListener('pointerdown', (e) => {
+      const rect = svg.getBoundingClientRect();
+      const scale = 800 / rect.width; // viewBox-единиц на экранный пиксель
+      const cur = s.roomPos[group.dataset.unit] || { dx: 0, dy: 0 };
+      drag = { x0: e.clientX, y0: e.clientY, ox: cur.dx || 0, oy: cur.dy || 0, scale };
+      group.setPointerCapture(e.pointerId);
+      group.classList.add('grabbing');
+      e.preventDefault();
+    });
+
+    group.addEventListener('pointermove', (e) => {
+      if (!drag) return;
+      const dx = clamp(drag.ox + (e.clientX - drag.x0) * drag.scale, -420, 520);
+      const dy = clamp(drag.oy + (e.clientY - drag.y0) * drag.scale, -220, 300);
+      group.setAttribute('transform', `translate(${dx}, ${dy})`);
+      drag.last = { dx, dy };
+    });
+
+    const end = () => {
+      if (!drag) return;
+      if (drag.last) { s.roomPos[group.dataset.unit] = drag.last; save(); }
+      group.classList.remove('grabbing');
+      drag = null;
+    };
+    group.addEventListener('pointerup', end);
+    group.addEventListener('pointercancel', end);
+  });
+}
+
+function clamp(v, lo, hi) {
+  return Math.max(lo, Math.min(hi, v));
 }

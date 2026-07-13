@@ -10,6 +10,7 @@ const DEFAULT_STATE = {
   resources: { wood: 0, stone: 0, iron: 0, gold: 0 },
   totalEarned: 0,
   roomItems: [],
+  roomPos: {},  // { unitId: {dx, dy} } — ручная расстановка предметов в комнате
   hero: null,   // 'boy' | 'girl' — выбирается при первом запуске
   outfit: null, // цвет куртки персонажа (null = родная бирюзовая)
   equipment: [],

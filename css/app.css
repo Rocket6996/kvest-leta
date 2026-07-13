@@ -477,3 +477,12 @@ body {
 .hero-color.picked { border-color: var(--text); }
 .hero-done { width: 100%; }
 .hero-change { margin-top: 12px; font-size: var(--fs-small); min-height: var(--tap-min); }
+
+/* ---------- Расстановка предметов ---------- */
+.room-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--gap); flex-wrap: wrap; }
+.room-edit-btn { min-height: var(--tap-min); min-width: 0; padding: 8px 18px; font-size: var(--fs-small); border-color: var(--mustard); }
+#room-svg.editing { touch-action: none; } /* иначе iPad прокручивает вместо перетаскивания */
+#room-svg.editing .room-item { cursor: grab; filter: drop-shadow(0 0 4px var(--mustard)); }
+#room-svg.editing .room-item.grabbing { cursor: grabbing; filter: drop-shadow(0 0 8px var(--mustard)); }
+.room-bar-btns { display: flex; gap: 8px; }
+.equip-list[hidden] { display: none; }
