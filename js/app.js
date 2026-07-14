@@ -103,6 +103,7 @@ async function init() {
   backfillHeroes();
   window.addEventListener('hashchange', route);
   route();
+  window.__appReady = true; // сигнал «сторожу» в index.html, что всё загрузилось
 
   // при первом запуске — знакомство и выбор героя
   if (needHero()) openHeroPicker();

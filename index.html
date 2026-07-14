@@ -43,5 +43,25 @@
   </nav>
 
   <script type="module" src="js/app.js"></script>
+  <script>
+    // Сторож против «белого экрана» установленного приложения: если за 5 секунд
+    // приложение не отрисовалось (залипший или битый кэш service worker),
+    // один раз сбрасываем кэш и SW и перезагружаемся начисто.
+    setTimeout(function () {
+      if (window.__appReady) return;
+      if (sessionStorage.getItem('selfHeal')) return; // не зацикливаемся
+      sessionStorage.setItem('selfHeal', '1');
+      Promise.all([
+        navigator.serviceWorker
+          ? navigator.serviceWorker.getRegistrations().then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister(); })); })
+          : Promise.resolve(),
+        window.caches ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); }) : Promise.resolve()
+      ]).then(function () { location.reload(); });
+    }, 5000);
+    // при успешной загрузке снимаем флаг, чтобы будущие запуски снова были под защитой
+    window.addEventListener('load', function () {
+      setTimeout(function () { if (window.__appReady) sessionStorage.removeItem('selfHeal'); }, 6000);
+    });
+  </script>
 </body>
 </html>
