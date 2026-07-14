@@ -14,6 +14,40 @@ const unitOf = (id) => UNIT[id] || id;
 
 let editing = false; // режим расстановки (по кнопке, не сохраняется)
 
+// Живое окно: по часам планшета рисуем утро/день/закат/ночь.
+// Ночью — растущий месяц (освещён справа) и звёзды.
+function windowScene() {
+  const X = 328, Y = 80, W = 144, H = 104;
+  const h = new Date().getHours();
+  let period = 'night';
+  if (h >= 5 && h < 10) period = 'morning';
+  else if (h >= 10 && h < 17) period = 'day';
+  else if (h >= 17 && h < 21) period = 'sunset';
+
+  const SKY = { morning: '#8a6f74', day: '#3f5f7a', sunset: '#7a4038', night: '#141821' }[period];
+  const sky = `<rect x="${X}" y="${Y}" width="${W}" height="${H}" fill="${SKY}"/>`;
+
+  if (period === 'night') {
+    const stars = [[356, 118], [388, 96], [372, 150], [452, 138], [412, 110]]
+      .map(([cx, cy], i) => `<circle cx="${cx}" cy="${cy}" r="${i % 2 ? 1.4 : 2}" fill="#e9e6df"/>`).join('');
+    // месяц: светлый диск, поверх — диск цвета неба со сдвигом влево (свет справа = растущий)
+    const moon = `<circle cx="434" cy="108" r="13" fill="#e9e6df" opacity="0.92"/>
+      <circle cx="426" cy="105" r="13" fill="${SKY}"/>`;
+    return `${sky}${stars}${moon}`;
+  }
+
+  // утро и закат — тёплая полоса у горизонта; солнце низко, днём — высоко
+  const horizon = period === 'sunset'
+    ? `<rect x="${X}" y="150" width="${W}" height="${Y + H - 150}" fill="#a85a44" opacity="0.55"/>`
+    : period === 'morning'
+      ? `<rect x="${X}" y="150" width="${W}" height="${Y + H - 150}" fill="#b39a8a" opacity="0.4"/>`
+      : '';
+  const sunY = period === 'day' ? 110 : 152;
+  const sunColor = { morning: '#e6b95a', day: '#f0d878', sunset: '#d98040' }[period];
+  const sun = `<circle cx="430" cy="${sunY}" r="13" fill="${sunColor}"/>`;
+  return `${sky}${horizon}${sun}`;
+}
+
 function costLabel(cost) {
   return Object.entries(cost).map(([t, n]) => `${n} ${RESOURCE_ICON[t]}`).join(' + ');
 }
@@ -232,12 +266,12 @@ export async function renderRoom(container) {
       ${wallPattern}
       <rect x="0" y="352" width="800" height="128" fill="#1c2127"/>
       <rect x="0" y="346" width="800" height="8" fill="#171b20"/>
-      <!-- окно с ночным небом — есть с самого начала -->
+      <!-- живое окно: время суток берётся с часов планшета -->
       <rect x="318" y="70" width="164" height="124" fill="#3d4653"/>
-      <rect x="328" y="80" width="144" height="104" fill="#171b20"/>
-      <circle cx="440" cy="106" r="14" fill="#e9e6df" opacity="0.85"/>
-      <circle cx="360" cy="120" r="3" fill="#e9e6df"/><circle cx="390" cy="96" r="2" fill="#e9e6df"/>
-      <circle cx="376" cy="150" r="2" fill="#e9e6df"/><circle cx="420" cy="142" r="2" fill="#e9e6df"/>
+      ${windowScene()}
+      <rect x="318" y="70" width="164" height="124" fill="none" stroke="#2b3138" stroke-width="8"/>
+      <rect x="396" y="80" width="4" height="104" fill="#3d4653"/>
+      <rect x="328" y="126" width="144" height="4" fill="#3d4653"/>
       ${art}
       <!-- разведчик всегда дома -->
       <foreignObject x="560" y="300" width="96" height="96">${scoutSvg(96)}</foreignObject>
