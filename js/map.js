@@ -45,54 +45,8 @@ function totalTasks(subject) {
   return subject.topics.reduce((sum, t) => sum + t.tasks, 0);
 }
 
-// Звери-символы дверей: один зверёк приходит за каждую полностью выработанную
-// подтему. У каждого предмета свой герой — карта заселяется его стайкой.
-// Рисуются кодом на сетке 0..7, в общем воксельном стиле.
-const MASCOT = {
-  russian: (c) => `
-    <rect x="1" y="1" width="1" height="1" fill="${c}"/><rect x="5" y="1" width="1" height="1" fill="${c}"/>
-    <rect x="1" y="2" width="5" height="5" fill="${c}"/>
-    <rect x="2" y="4" width="3" height="3" fill="#e9e6df" opacity="0.5"/>
-    <rect x="1" y="2" width="2" height="2" fill="#e9e6df"/><rect x="4" y="2" width="2" height="2" fill="#e9e6df"/>
-    <rect x="2" y="3" width="1" height="1" fill="#2b3a42"/><rect x="4" y="3" width="1" height="1" fill="#2b3a42"/>
-    <rect x="3" y="3" width="1" height="1" fill="var(--mustard)"/>
-    <rect x="2" y="7" width="1" height="1" fill="var(--mustard)"/><rect x="4" y="7" width="1" height="1" fill="var(--mustard)"/>`,
-  math: (c) => `
-    <rect x="5" y="1" width="2" height="6" fill="#a07a4a"/>
-    <rect x="2" y="1" width="1" height="1" fill="${c}"/>
-    <rect x="1" y="2" width="4" height="5" fill="${c}"/>
-    <rect x="3" y="3" width="1" height="1" fill="#2b3a42"/>
-    <rect x="2" y="5" width="2" height="1" fill="#b89a6a"/>
-    <rect x="1" y="7" width="1" height="1" fill="${c}"/><rect x="3" y="7" width="1" height="1" fill="${c}"/>`,
-  reading: (c) => `
-    <rect x="1" y="0" width="1" height="2" fill="${c}"/><rect x="5" y="0" width="1" height="2" fill="${c}"/>
-    <rect x="1" y="2" width="5" height="4" fill="${c}"/>
-    <rect x="1" y="4" width="2" height="2" fill="#e9e6df"/>
-    <rect x="2" y="3" width="1" height="1" fill="#2b3a42"/><rect x="4" y="3" width="1" height="1" fill="#2b3a42"/>
-    <rect x="3" y="4" width="1" height="1" fill="#2b3a42"/>
-    <rect x="6" y="3" width="1" height="3" fill="${c}"/><rect x="6" y="5" width="1" height="1" fill="#e9e6df"/>
-    <rect x="2" y="6" width="1" height="1" fill="#3d4653"/><rect x="4" y="6" width="1" height="1" fill="#3d4653"/>`,
-  world: () => `
-    <rect x="1" y="1" width="1" height="1" fill="#4a3826"/><rect x="3" y="1" width="1" height="1" fill="#4a3826"/><rect x="5" y="1" width="1" height="1" fill="#4a3826"/>
-    <rect x="1" y="2" width="5" height="2" fill="#4a3826"/>
-    <rect x="1" y="4" width="6" height="3" fill="#c8a06a"/>
-    <rect x="5" y="5" width="1" height="1" fill="#2b3a42"/><rect x="6" y="5" width="1" height="1" fill="#2b3a42"/>
-    <rect x="1" y="7" width="1" height="1" fill="#c8a06a"/><rect x="4" y="7" width="1" height="1" fill="#c8a06a"/>`,
-};
-
-// естественные цвета зверей
-const MASCOT_COLOR = { russian: '#8a6f9a', math: '#a86a3a', reading: '#c4733f', world: '#8a7355' };
-
-function mascotSvg(kind, x, y) {
-  const color = MASCOT_COLOR[kind] || '#8a7355';
-  return `<g transform="translate(${x}, ${y}) scale(3.2)" shape-rendering="crispEdges">${MASCOT[kind](color)}</g>`;
-}
-
-function mascotsFor(subject, pos) {
-  const done = subject.topics.filter((t) => solvedInTopic(subject.id, t.id) >= t.tasks).length;
-  return Array.from({ length: done }, (_, k) =>
-    mascotSvg(subject.id, pos.x + 4 + k * 34, pos.y + 190)).join('');
-}
+// Звери-символы дверей вынесены: теперь награда — зверь-герой за весь предмет
+// (см. подсказку под картой и выбор героя в «Лагере»).
 
 function doorSvg(subject, pos) {
   const solved = solvedCount(subject.id);
@@ -127,12 +81,30 @@ export function renderMap(container, subjects, onOpenSubject) {
         <text class="door-progress" x="48" y="116" dominant-baseline="hanging">Лагерь</text>
       </g>
       ${subjects.map((s, i) => doorSvg(s, DOOR_POS[i])).join('')}
-      ${subjects.map((s, i) => mascotsFor(s, DOOR_POS[i])).join('')}
-    </svg>`;
+    </svg>
+    ${rewardHint(subjects)}`;
 
   container.querySelectorAll('.door').forEach((door) => {
     door.addEventListener('click', () => onOpenSubject(door.dataset.subject));
   });
+}
+
+// Подсказка под картой: за полностью пройденный предмет открывается зверь-герой,
+// которым можно играть. Показываем прогресс по каждой двери.
+const SUBJECT_ANIMAL = { russian: 'Сова 🦉', math: 'Белка 🐿️', reading: 'Лиса 🦊', world: 'Ёжик 🦔' };
+
+function rewardHint(subjects) {
+  const rows = subjects.filter((s) => SUBJECT_ANIMAL[s.id]).map((s) => {
+    const done = s.topics.filter((t) => solvedInTopic(s.id, t.id) >= t.tasks).length;
+    const total = s.topics.length;
+    const got = done >= total;
+    return `<li class="${got ? 'reward-got' : ''}">${SUBJECT_ANIMAL[s.id]} — ${got ? 'открыт! играй за него' : `пройди весь «${s.title}» (${done}/${total} тем)`}</li>`;
+  }).join('');
+  return `
+    <div class="reward-hint">
+      <p>🎁 Пройди <b>весь предмет</b> — получишь нового героя-животное, за которого можно играть (меняется в «Лагере»):</p>
+      <ul>${rows}</ul>
+    </div>`;
 }
 
 // Мини-карта предмета: список подтем с остатком добычи в каждой жиле.

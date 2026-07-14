@@ -488,3 +488,14 @@ body {
 .equip-list[hidden] { display: none; }
 .shop-group { margin: 20px auto 8px; max-width: 640px; color: var(--text-dim); font-size: var(--fs-body); }
 .shop-group:first-child { margin-top: 4px; }
+
+/* награда-подсказка под картой */
+.reward-hint { max-width: 640px; margin: 16px auto 0; color: var(--text-dim); font-size: var(--fs-small); }
+.reward-hint ul { list-style: none; margin-top: 8px; }
+.reward-hint li { padding: 4px 0; }
+.reward-hint li.reward-got { color: var(--ok); }
+/* палитра цвета питомца в магазине */
+.pet-palette { display: flex; gap: 6px; margin-top: 6px; }
+.pet-color { width: 26px; height: 26px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; padding: 0; }
+.pet-color.picked { border-color: var(--text); }
+.hero-animals .block { flex: 1; min-width: 0; }

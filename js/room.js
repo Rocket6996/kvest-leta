@@ -97,12 +97,12 @@ const ITEM_ART = {
     <g><rect x="96" y="76" width="86" height="10" fill="#4a3826"/>
     <path d="M104 86 h70 v78 l-35 -18 l-35 18 z" fill="var(--violet)"/>
     <rect x="128" y="104" width="22" height="22" fill="var(--mustard)" transform="rotate(45 139 115)"/></g>`,
-  cat: `
-    <g><rect x="150" y="404" width="46" height="22" rx="8" fill="#8a8577"/>
-    <rect x="188" y="392" width="22" height="20" rx="5" fill="#8a8577"/>
-    <rect x="190" y="386" width="7" height="9" fill="#8a8577"/><rect x="202" y="386" width="7" height="9" fill="#8a8577"/>
+  cat: (c = '#8a8577') => `
+    <g><rect x="150" y="404" width="46" height="22" rx="8" fill="${c}"/>
+    <rect x="188" y="392" width="22" height="20" rx="5" fill="${c}"/>
+    <rect x="190" y="386" width="7" height="9" fill="${c}"/><rect x="202" y="386" width="7" height="9" fill="${c}"/>
     <rect x="194" y="398" width="4" height="4" fill="#23282f"/><rect x="203" y="398" width="4" height="4" fill="#23282f"/>
-    <rect x="138" y="396" width="14" height="8" rx="4" fill="#8a8577"/></g>`,
+    <rect x="138" y="396" width="14" height="8" rx="4" fill="${c}"/></g>`,
   trophy: `
     <g><rect x="666" y="126" width="26" height="26" rx="6" fill="var(--mustard)"/>
     <rect x="672" y="152" width="14" height="8" fill="var(--mustard)"/><rect x="664" y="160" width="30" height="6" fill="#7d5834"/>
@@ -112,14 +112,14 @@ const ITEM_ART = {
     <rect x="606" y="218" width="80" height="58" fill="#171b20"/>
     <path d="M610 268 l20 -26 l14 16 l12 -20 l26 30 z" fill="var(--teal)"/>
     <circle cx="668" cy="230" r="6" fill="var(--mustard)"/></g>`,
-  dog: `
-    <g><rect x="392" y="396" width="54" height="24" rx="8" fill="#8a6a4a"/>
-    <rect x="436" y="382" width="24" height="22" rx="5" fill="#8a6a4a"/>
+  dog: (c = '#8a6a4a') => `
+    <g><rect x="392" y="396" width="54" height="24" rx="8" fill="${c}"/>
+    <rect x="436" y="382" width="24" height="22" rx="5" fill="${c}"/>
     <rect x="438" y="374" width="8" height="12" rx="3" fill="#6e5238"/><rect x="452" y="374" width="8" height="12" rx="3" fill="#6e5238"/>
     <rect x="442" y="390" width="4" height="4" fill="#23282f"/><rect x="452" y="390" width="4" height="4" fill="#23282f"/>
     <rect x="446" y="398" width="8" height="5" fill="#23282f"/>
-    <rect x="396" y="418" width="8" height="12" fill="#8a6a4a"/><rect x="432" y="418" width="8" height="12" fill="#8a6a4a"/>
-    <rect x="380" y="390" width="14" height="8" rx="4" fill="#8a6a4a" transform="rotate(-30 387 394)"/></g>`,
+    <rect x="396" y="418" width="8" height="12" fill="${c}"/><rect x="432" y="418" width="8" height="12" fill="${c}"/>
+    <rect x="380" y="390" width="14" height="8" rx="4" fill="${c}" transform="rotate(-30 387 394)"/></g>`,
   dog_bandana: `
     <g><rect x="434" y="400" width="26" height="7" fill="var(--err)"/>
     <path d="M442 407 l6 9 l6 -9 z" fill="var(--err)"/></g>`,
@@ -181,11 +181,12 @@ export async function renderRoom(container) {
   // собираем предметы в группы-«юниты» (питомец с одеждой — одно целое),
   // каждый юнит сдвигается на свой сохранённый offset и перетаскивается целиком
   const pos = s.roomPos || {};
-  // цвет питомца (пока только попугай; выбор цвета — в отдельной доработке)
   const petColor = s.petColors || {};
   const artOf = (id) => {
     const a = ITEM_ART[id];
     if (typeof a !== 'function') return a;
+    if (id === 'cat') return a(petColor.cat);
+    if (id === 'dog') return a(petColor.dog);
     if (id === 'cage' || id === 'cage2') return a(petColor.parrot);
     return a();
   };
@@ -201,13 +202,28 @@ export async function renderRoom(container) {
     return `<g class="room-item" data-unit="${u}" transform="translate(${p.dx || 0}, ${p.dy || 0})">${parts.join('')}</g>`;
   }).join('');
 
+  // питомцы, у которых можно менять цвет: кот, пёс, попугай (клетка)
+  const PET_OF = { cat: 'cat', dog: 'dog', cage: 'parrot' };
+  const PET_PALETTE = {
+    cat: ['#8a8577', '#3a3a3a', '#c9a24a', '#e9e6df', '#c4735f'],
+    dog: ['#8a6a4a', '#3a2c1e', '#c9a24a', '#e9e6df', '#5a5a5a'],
+    parrot: ['#5aa05a', '#4a7fb5', '#d9a441', '#c4735f', '#9a86c4'],
+  };
+  const palette = (petKey) => `
+    <div class="pet-palette">${PET_PALETTE[petKey].map((col) => {
+      const cur = (petColor[petKey] || PET_PALETTE[petKey][0]) === col;
+      return `<button class="pet-color ${cur ? 'picked' : ''}" data-pet="${petKey}" data-col="${col}" style="background:${col}"></button>`;
+    }).join('')}</div>`;
+
   const itemRow = (item) => {
     if (crafted.has(item.id)) {
+      const petKey = PET_OF[item.id];
+      const ownedLabel = item.group === 'hero' ? 'надето' : 'в комнате';
       return `
         <div class="equip-item">
           <span class="inv-icon">${item.icon}</span>
-          <span>${item.title}</span>
-          <span class="count">в комнате</span>
+          <span>${item.title}${petKey ? palette(petKey) : ''}</span>
+          <span class="count">${ownedLabel}</span>
         </div>`;
     }
     // сначала нужен предмет-основа (кот для шарфа, клетка для улучшения)
@@ -230,6 +246,7 @@ export async function renderRoom(container) {
     ['decor', '🖼️ Декор'],
     ['pets', '🐾 Питомцы'],
     ['petwear', '🎀 Одежда питомцев'],
+    ['hero', '🧢 Одежда героя'],
   ];
   const list = GROUPS.map(([g, title]) => {
     const rows = rewards.items.filter((it) => it.group === g).map(itemRow).join('');
@@ -298,9 +315,18 @@ export async function renderRoom(container) {
     btn.addEventListener('click', () => {
       const item = rewards.items.find((i) => i.id === btn.dataset.item);
       if (item && craft(item.id, item.cost)) {
-        renderHud();
+        renderHud(); // аксессуары героя сразу видны на аватаре
         renderRoom(container); // предмет сразу появляется в комнате
       }
+    });
+  });
+
+  container.querySelectorAll('.pet-color').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      s.petColors = s.petColors || {};
+      s.petColors[btn.dataset.pet] = btn.dataset.col;
+      save();
+      renderRoom(container);
     });
   });
 }

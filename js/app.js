@@ -7,8 +7,28 @@ import { renderParent } from './parent.js';
 import { renderRoom } from './room.js';
 import { renderBook, booksSubject } from './book.js';
 import { needHero, openHeroPicker } from './hero.js';
+import { getState, save } from './state.js';
+import { solvedInTopic } from './engine.js';
 
 let subjects = [];
+
+// звери-герои за полностью пройденные предметы
+const SUBJECT_ANIMAL = { russian: 'owl', math: 'squirrel', reading: 'fox', world: 'hedgehog' };
+
+// добор наград: если предмет уже пройден (в т.ч. до этого обновления) — открыть зверя
+function backfillHeroes() {
+  const st = getState();
+  let changed = false;
+  for (const s of subjects) {
+    const animal = SUBJECT_ANIMAL[s.id];
+    if (!animal || st.unlockedHeroes.includes(animal)) continue;
+    if (s.topics.every((t) => solvedInTopic(s.id, t.id) >= t.tasks)) {
+      st.unlockedHeroes.push(animal);
+      changed = true;
+    }
+  }
+  if (changed) save();
+}
 
 const screens = {
   map: document.getElementById('screen-map'),
@@ -80,6 +100,7 @@ async function route() {
 async function init() {
   const res = await fetch('content/subjects.json');
   subjects = (await res.json()).subjects;
+  backfillHeroes();
   window.addEventListener('hashchange', route);
   route();
 

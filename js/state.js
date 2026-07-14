@@ -11,9 +11,11 @@ const DEFAULT_STATE = {
   totalEarned: 0,
   roomItems: [],
   roomPos: {},  // { unitId: {dx, dy} } — ручная расстановка предметов в комнате
-  hero: null,   // 'boy' | 'girl' — выбирается при первом запуске
+  hero: null,   // 'boy' | 'girl' | зверь — выбирается при первом запуске
   hairColor: null, // цвет волос (null = каштановый)
   outfit: null, // цвет куртки персонажа (null = родная бирюзовая)
+  unlockedHeroes: [], // звери-герои, открытые за пройденные предметы
+  petColors: {},      // { cat|dog|parrot: цвет }
   equipment: [],
   // progress[subjectId][topicId] = массив id решённых заданий
   progress: {},

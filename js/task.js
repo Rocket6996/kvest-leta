@@ -1,6 +1,6 @@
 // Экран заданий: очередь «блоков» подтемы, разбивание с мгновенным фидбеком.
 // Тон реплик — напарник по экспедиции, не учитель.
-import { isSolved, checkAnswer, award, recordMistake, totalEarned } from './engine.js';
+import { isSolved, checkAnswer, award, recordMistake, totalEarned, solvedInTopic } from './engine.js';
 import { getState, save } from './state.js';
 import { renderHud } from './character.js';
 import { initScratchpad } from './draw.js';
@@ -326,19 +326,35 @@ function showNext(session, campTime, chest = null) {
 
 /* ---------- финалы ---------- */
 
+const SUBJECT_ANIMAL = { russian: 'owl', math: 'squirrel', reading: 'fox', world: 'hedgehog' };
+const ANIMAL_LABEL = { owl: '🦉 Сова', squirrel: '🐿️ Белка', fox: '🦊 Лиса', hedgehog: '🦔 Ёжик' };
+
 function renderTopicDone(session) {
-  const MASCOT_NOTE = { russian: '🦉 сова', math: '🐿️ белка', reading: '🦊 лиса', world: '🦔 ёжик' };
-  const villagerNote = MASCOT_NOTE[session.subject.id]
-    ? `<p>${MASCOT_NOTE[session.subject.id]} поселилась у двери — посмотри на карте!</p>`
-    : '';
+  // проверяем, пройден ли весь предмет — тогда открывается зверь-герой
+  const subj = session.subject;
+  const wholeSubjectDone = subj.topics.every((t) => isSolvedTopic(subj.id, t.id, t.tasks));
+  const animal = SUBJECT_ANIMAL[subj.id];
+  let heroNote = '';
+  if (wholeSubjectDone && animal) {
+    const st = getState();
+    if (!st.unlockedHeroes.includes(animal)) {
+      st.unlockedHeroes.push(animal);
+      save();
+    }
+    heroNote = `<p>🎁 Ты прошёл весь «${subj.title}»! Открыт новый герой — <b>${ANIMAL_LABEL[animal]}</b>. Выбери его в «Лагере» → «Сменить внешность».</p>`;
+  }
   session.container.innerHTML = `
     <div class="finale">
       <div class="finale-icon">⛏️</div>
       <h2>Жила выработана!</h2>
       <p>«${session.topic.title}» — все ${session.total} блоков разбиты. Отличная смена, напарник.</p>
-      ${villagerNote}
+      ${heroNote}
       <a href="#subject/${session.subject.id}" class="block hit-btn">К карте ${session.subject.place}</a>
     </div>`;
+}
+
+function isSolvedTopic(subjectId, topicId, tasks) {
+  return solvedInTopic(subjectId, topicId) >= tasks;
 }
 
 // Сундук достигнут. Обычный сундук дарит предмет для комнаты сразу;

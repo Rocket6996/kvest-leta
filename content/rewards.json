@@ -182,6 +182,43 @@
       },
       "requires": "cage",
       "group": "pets"
+    },
+    {
+      "id": "cap",
+      "icon": "🧢",
+      "title": "Кепка",
+      "cost": {
+        "stone": 4
+      },
+      "group": "hero"
+    },
+    {
+      "id": "glasses",
+      "icon": "🕶️",
+      "title": "Очки",
+      "cost": {
+        "iron": 3
+      },
+      "group": "hero"
+    },
+    {
+      "id": "balloon",
+      "icon": "🎈",
+      "title": "Шарик",
+      "cost": {
+        "wood": 3
+      },
+      "group": "hero"
+    },
+    {
+      "id": "cape",
+      "icon": "🦸",
+      "title": "Плащ",
+      "cost": {
+        "stone": 4,
+        "iron": 3
+      },
+      "group": "hero"
     }
   ],
   "milestones": [

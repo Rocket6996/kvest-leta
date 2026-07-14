@@ -1,7 +1,7 @@
 // Выбор внешности разведчика: мальчик/девочка + бесплатный цвет куртки.
 // Показывается при первом запуске и по кнопке в «Лагере».
 import { getState, save } from './state.js';
-import { scoutSvg, OUTFITS, HAIR_COLORS, renderHud } from './character.js';
+import { scoutSvg, OUTFITS, HAIR_COLORS, ANIMAL_HEROES, renderHud } from './character.js';
 
 export function needHero() {
   return !getState().hero;
@@ -36,6 +36,12 @@ export function openHeroPicker(onDone) {
           <button class="block ${s.hero === 'boy' ? 'picked' : ''}" data-hero="boy">Мальчик</button>
           <button class="block ${s.hero === 'girl' ? 'picked' : ''}" data-hero="girl">Девочка</button>
         </div>
+        ${(s.unlockedHeroes || []).length ? `
+          <p class="hero-sub">Звери-герои (за пройденные предметы)</p>
+          <div class="hero-row hero-animals">
+            ${s.unlockedHeroes.map((k) => `
+              <button class="block ${s.hero === k ? 'picked' : ''}" data-hero="${k}">${ANIMAL_HEROES[k]?.name || k}</button>`).join('')}
+          </div>` : ''}
         <p class="hero-sub">Цвет волос</p>
         <div class="hero-colors">
           ${HAIR_KEYS.map((c) => `
